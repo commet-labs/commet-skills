@@ -1,0 +1,13 @@
+{
+  "name": "commet-skills",
+  "owner": {
+    "name": "Commet",
+    "email": "decker@commet.co"
+  },
+  "plugins": [
+    {
+      "name": "commet",
+      "source": "./"
+    }
+  ]
+}

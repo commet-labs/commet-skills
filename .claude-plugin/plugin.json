@@ -1,0 +1,13 @@
+{
+  "name": "commet",
+  "description": "Skills and MCP server for the Commet billing platform — subscriptions, usage tracking, seats, feature gating, AI token billing, webhooks, and billing business rules.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Commet",
+    "url": "https://commet.co"
+  },
+  "homepage": "https://commet.co",
+  "repository": "https://github.com/commet-labs/commet-skills",
+  "license": "Apache-2.0",
+  "keywords": ["billing", "payments", "subscriptions", "usage", "seats", "saas", "merchant-of-record"]
+}
