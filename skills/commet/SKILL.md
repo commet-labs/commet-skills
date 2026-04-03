@@ -1,7 +1,7 @@
 ---
 name: commet
 description: Integrate Commet billing and payments into any application. Use when working with @commet/node, @commet/next, @commet/better-auth, the Commet CLI, or building billing features like subscriptions, usage tracking, seat management, checkout, customer portal, webhooks, feature gating, or payment flows. Triggers on imports from "@commet/node", "@commet/next", "@commet/better-auth", commet SDK usage, billing integration tasks, or mentions of Commet.
-license: Apache-2.0
+license: MIT
 metadata:
   author: commet
   version: "1.0.0"

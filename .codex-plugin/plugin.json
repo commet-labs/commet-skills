@@ -11,6 +11,6 @@
   },
   "homepage": "https://commet.co",
   "repository": "https://github.com/commet-labs/commet-skills",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "keywords": ["billing", "payments", "subscriptions", "usage", "seats", "saas", "merchant-of-record"]
 }

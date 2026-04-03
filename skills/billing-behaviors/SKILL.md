@@ -1,7 +1,7 @@
 ---
 name: billing-behaviors
 description: Commet behavior rules and business logic. Use when implementing billing features, subscription changes, plan changes, proration, pricing, credits, balance, intro offers, or any billing edge case. Contains detailed rules for how changes affect customers.
-license: Apache-2.0
+license: MIT
 metadata:
   author: commet
   version: "1.0.0"

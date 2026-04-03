@@ -1,7 +1,7 @@
 ---
 name: ai-billing
 description: Use when billing for AI model token usage — setting up @commet/ai-sdk tracked() middleware, configuring balance consumption model plans with AI model pricing, tracking input/output/cache tokens, cost calculation with margins, or building AI products that need usage-based billing.
-license: Apache-2.0
+license: MIT
 metadata:
   author: commet
   version: "1.0.0"

@@ -39,4 +39,4 @@ npx skills add commet-labs/commet-skills --skill ai-billing
 
 ## License
 
-Apache-2.0
+MIT

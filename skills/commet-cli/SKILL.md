@@ -1,7 +1,7 @@
 ---
 name: commet-cli
 description: Use when working with the Commet CLI -- logging in, linking projects, pulling types for autocomplete, scaffolding new projects from templates (fixed, seats, metered, credits, balance-ai, balance-fixed), or managing organizations.
-license: Apache-2.0
+license: MIT
 metadata:
   author: commet
   version: "1.0.0"

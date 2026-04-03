@@ -1,7 +1,7 @@
 ---
 name: commet-webhooks
 description: Use when setting up Commet webhook endpoints, verifying signatures, handling billing events (subscription.created, subscription.activated, subscription.canceled, subscription.updated, payment.received, payment.failed, invoice.created), or building event-driven billing workflows.
-license: Apache-2.0
+license: MIT
 metadata:
   author: commet
   version: "1.0.0"
