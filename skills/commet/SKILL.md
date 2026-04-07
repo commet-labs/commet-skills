@@ -50,7 +50,7 @@ Sandbox: `https://sandbox.commet.co`. Production: `https://commet.co`.
 ## Integration Workflow
 
 1. **Setup**: `commet login` -> `commet link` -> `commet pull` (generates `.commet/types.d.ts` for autocomplete)
-2. **Create customer**: On user signup, create Commet customer with `externalId` = your user ID
+2. **Create customer**: On user signup, create Commet customer with `id` = your user ID
 3. **Create subscription**: Call `subscriptions.create()` -> redirect to `checkoutUrl`
 4. **Check state**: Query `subscriptions.get()` to check subscription status (preferred over webhooks)
 5. **Track usage**: `usage.track()` for metered features, `seats.add/remove/set()` for seats
@@ -89,13 +89,13 @@ const { data: sub } = await commet.subscriptions.get("user_123");
 if (sub?.status === "active") { /* grant access */ }
 
 // Recommended: feature gating
-const { data } = await commet.features.check({ code: "advanced_analytics", externalId: "user_123" });
+const { data } = await commet.features.check({ code: "advanced_analytics", customerId: "user_123" });
 if (!data?.allowed) { /* show upgrade prompt */ }
 ```
 
 ### Customer identification
 
-Always use `externalId` (your user/org ID) to identify customers. The SDK accepts either `customerId` (Commet's `cus_xxx`) or `externalId` - prefer `externalId` to avoid storing Commet IDs.
+Always use `customerId` (your user/org ID) to identify customers. The SDK accepts both your own IDs and Commet's `cus_xxx` IDs.
 
 ### Customer-scoped context
 
@@ -114,7 +114,7 @@ All POST requests auto-generate idempotency keys. For critical operations, pass 
 
 ```typescript
 await commet.usage.track({
-  externalId: "user_123",
+  customerId: "user_123",
   feature: "api_calls",
   idempotencyKey: `req_${requestId}`,
 });

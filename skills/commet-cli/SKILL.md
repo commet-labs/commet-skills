@@ -35,12 +35,12 @@ After `commet pull`, SDK calls get autocomplete for `planCode`, `feature`, and `
 
 ```typescript
 await commet.usage.track({
-  externalId: "user_123",
+  customerId: "user_123",
   feature: "api_calls",       // autocomplete from pulled types
 });
 
 await commet.subscriptions.create({
-  externalId: "user_123",
+  customerId: "user_123",
   planCode: "pro",            // autocomplete from pulled types
 });
 ```

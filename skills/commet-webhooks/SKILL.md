@@ -66,7 +66,7 @@ if (sub?.status === "active" || sub?.status === "trialing") {
 // Check feature access
 const { data } = await commet.features.check({
   code: "advanced_analytics",
-  externalId: "user_123",
+  customerId: "user_123",
 });
 ```
 

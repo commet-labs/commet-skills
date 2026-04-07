@@ -41,7 +41,7 @@ const result = await generateText({
 |--------|------|----------|-------------|
 | `commet` | `Commet` | Yes | Commet SDK instance |
 | `feature` | `string` | Yes | Feature code configured in the dashboard |
-| `customerId` | `string` | Yes | Customer's externalId or Commet `cus_xxx` ID |
+| `customerId` | `string` | Yes | Your user/org ID or Commet `cus_xxx` ID |
 | `idempotencyKey` | `string` | No | Prevents duplicate tracking on retries |
 | `onTrackingError` | `(error: Error) => void` | No | Custom error handler (defaults to `console.warn`) |
 
@@ -130,7 +130,7 @@ tracked(model, { commet, feature: "ai", customerId: "user_123" });
 tracked(model, { commet, feature: "ai", customerId: "cus_abc123" });
 ```
 
-IDs starting with `cus_` are sent as `customerId`, all others as `externalId`. Using your app's user ID is recommended because it avoids a lookup step.
+IDs starting with `cus_` are treated as Commet customer IDs, all others as your app's user IDs. Using your app's user ID is recommended because it avoids a lookup step.
 
 ## Feature Slug Configuration
 

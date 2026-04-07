@@ -19,10 +19,10 @@ const commet = new Commet({
 ### commet.customers
 
 ```typescript
-// Create (idempotent with externalId)
+// Create (idempotent with id)
 await commet.customers.create({
   email: string,              // billingEmail - required
-  externalId?: string,        // Your user/org ID
+  id?: string,                // Your user/org ID
   fullName?: string,
   domain?: string,
   timezone?: string,
@@ -40,7 +40,7 @@ await commet.customers.get("cus_xxx");
 await commet.customers.update({ customerId: "cus_xxx", email?: string, ... });
 
 // List with filters
-await commet.customers.list({ externalId?, isActive?, search?, limit?, cursor? });
+await commet.customers.list({ customerId?, isActive?, search?, limit?, cursor? });
 
 // Archive
 await commet.customers.archive("cus_xxx");
@@ -79,7 +79,7 @@ Each customer can only have ONE active subscription.
 ```typescript
 // Create subscription -> returns checkoutUrl for payment
 const { data: sub } = await commet.subscriptions.create({
-  externalId: "user_123",     // or customerId: "cus_xxx"
+  customerId: "user_123",     // your ID or cus_xxx
   planCode: "pro",            // or planId: "plan_xxx"
   billingInterval?: "monthly" | "quarterly" | "yearly",
   initialSeats?: { editor: 5 },
@@ -112,7 +112,7 @@ Track consumption events for metered features. Two modes: value-based (standard)
 ```typescript
 // Track value-based event (standard metered usage)
 await commet.usage.track({
-  externalId: "user_123",     // or customerId
+  customerId: "user_123",     // your ID or cus_xxx
   feature: "api_calls",       // feature.code from your plan
   value?: number,             // default: 1
   idempotencyKey?: string,    // prevent duplicate billing
@@ -122,7 +122,7 @@ await commet.usage.track({
 
 // Track AI model token usage (balance model with AI pricing)
 await commet.usage.track({
-  externalId: "user_123",
+  customerId: "user_123",
   feature: "ai_generation",
   model: "anthropic/claude-3-opus",  // provider/modelId
   inputTokens: 1000,
@@ -134,8 +134,8 @@ await commet.usage.track({
 // Batch track (supports both value and token events)
 await commet.usage.trackBatch({
   events: [
-    { externalId: "user_123", feature: "api_calls", value: 1 },
-    { externalId: "user_456", feature: "ai_generation", model: "anthropic/claude-3-opus", inputTokens: 500, outputTokens: 200 },
+    { customerId: "user_123", feature: "api_calls", value: 1 },
+    { customerId: "user_456", feature: "ai_generation", model: "anthropic/claude-3-opus", inputTokens: 500, outputTokens: 200 },
   ],
 });
 ```
@@ -148,23 +148,23 @@ Manage seat-based licenses. Seats are charged: advance at period start + prorate
 
 ```typescript
 // Add seats
-await commet.seats.add({ externalId: "user_123", seatType: "editor", count: 5 });
+await commet.seats.add({ customerId: "user_123", seatType: "editor", count: 5 });
 
 // Remove seats
-await commet.seats.remove({ externalId: "user_123", seatType: "editor", count: 2 });
+await commet.seats.remove({ customerId: "user_123", seatType: "editor", count: 2 });
 
 // Set to exact count
-await commet.seats.set({ externalId: "user_123", seatType: "editor", count: 10 });
+await commet.seats.set({ customerId: "user_123", seatType: "editor", count: 10 });
 
 // Set all seat types at once
-await commet.seats.setAll({ externalId: "user_123", seats: { editor: 10, viewer: 50 } });
+await commet.seats.setAll({ customerId: "user_123", seats: { editor: 10, viewer: 50 } });
 
 // Get balance
-const { data } = await commet.seats.getBalance({ externalId: "user_123", seatType: "editor" });
+const { data } = await commet.seats.getBalance({ customerId: "user_123", seatType: "editor" });
 // data.current: number, data.asOf: string
 
 // Get all balances
-const { data: all } = await commet.seats.getAllBalances({ externalId: "user_123" });
+const { data: all } = await commet.seats.getAllBalances({ customerId: "user_123" });
 // { editor: { current: 10, asOf: "..." }, viewer: { current: 50, asOf: "..." } }
 ```
 
@@ -174,15 +174,15 @@ Check feature access without parsing subscription data.
 
 ```typescript
 // Get detailed feature info
-const { data } = await commet.features.get({ code: "team_members", externalId: "user_123" });
+const { data } = await commet.features.get({ code: "team_members", customerId: "user_123" });
 // data: { code, name, type, allowed, current, included, remaining, overage, unlimited, ... }
 
 // Check boolean feature
-const { data } = await commet.features.check({ code: "custom_branding", externalId: "user_123" });
+const { data } = await commet.features.check({ code: "custom_branding", customerId: "user_123" });
 // data: { allowed: boolean }
 
 // Check if can use one more unit (metered/seats)
-const { data } = await commet.features.canUse({ code: "team_members", externalId: "user_123" });
+const { data } = await commet.features.canUse({ code: "team_members", customerId: "user_123" });
 // data: { allowed: boolean, willBeCharged: boolean, reason?: string }
 
 // List all features
@@ -195,8 +195,8 @@ const { data } = await commet.features.list("user_123");
 Generate customer self-service portal URLs.
 
 ```typescript
-// By externalId
-const { data } = await commet.portal.getUrl({ externalId: "user_123" });
+// By customerId
+const { data } = await commet.portal.getUrl({ customerId: "user_123" });
 
 // By email
 const { data } = await commet.portal.getUrl({ email: "user@example.com" });
@@ -242,7 +242,7 @@ const payload = commet.webhooks.verifyAndParse({
 ```typescript
 const customer = commet.customer("user_123");
 
-// All calls scoped - no need to pass externalId
+// All calls scoped - no need to pass customerId
 await customer.usage.track("api_calls", 1);
 await customer.usage.track("api_calls", 1, { endpoint: "/users" });
 await customer.features.get("team_members");

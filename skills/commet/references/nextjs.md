@@ -10,7 +10,7 @@ const { data: sub } = await commet.subscriptions.get(user.id);
 if (sub?.status === "active" || sub?.status === "trialing") { /* has access */ }
 
 // Check feature access
-const { data } = await commet.features.check({ code: "api_calls", externalId: user.id });
+const { data } = await commet.features.check({ code: "api_calls", customerId: user.id });
 
 // List all features
 const { data: features } = await commet.features.list(user.id);
@@ -139,9 +139,9 @@ export async function createCheckout(planCode: string) {
   if (!user) redirect("/sign-in");
 
   // Ensure customer exists
-  const customers = await commet.customers.list({ externalId: user.id, limit: 1 });
+  const customers = await commet.customers.list({ customerId: user.id, limit: 1 });
   if (!customers.data?.length) {
-    await commet.customers.create({ externalId: user.id, email: user.email });
+    await commet.customers.create({ id: user.id, email: user.email });
   }
 
   // Check existing subscription
@@ -153,7 +153,7 @@ export async function createCheckout(planCode: string) {
 
   // Create subscription -> get checkout URL
   const result = await commet.subscriptions.create({
-    externalId: user.id,
+    customerId: user.id,
     planCode,
     successUrl: `${process.env.NEXT_PUBLIC_URL}/dashboard`,
   });
@@ -184,7 +184,7 @@ const getCachedPlans = unstable_cache(
 ```typescript
 export default async function Page() {
   const user = await getUser();
-  const { data } = await commet.features.check({ code: "advanced_analytics", externalId: user.id });
+  const { data } = await commet.features.check({ code: "advanced_analytics", customerId: user.id });
 
   if (!data?.allowed) {
     return <UpgradePrompt feature="Advanced Analytics" />;

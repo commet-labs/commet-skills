@@ -18,7 +18,7 @@ const commet = new Commet({
 const model = tracked(anthropic("claude-3-opus"), {
   commet,                          // Commet SDK instance
   feature: "ai_generation",       // Feature code (autocomplete after `commet pull`)
-  customerId: "user_123",         // externalId or cus_xxx
+  customerId: "user_123",         // your ID or cus_xxx
   idempotencyKey?: string,        // Optional dedup key
   onTrackingError?: (error) => {  // Optional error handler
     console.error("Tracking failed:", error);
@@ -47,7 +47,7 @@ const result = await generateText({
 |--------|------|----------|-------------|
 | `commet` | `Commet` | Yes | Commet SDK instance |
 | `feature` | `string` | Yes | Feature code for billing |
-| `customerId` | `string` | Yes | Customer's externalId or `cus_xxx` |
+| `customerId` | `string` | Yes | Your user/org ID or Commet `cus_xxx` |
 | `idempotencyKey` | `string` | No | Prevent duplicate tracking |
 | `onTrackingError` | `(error: Error) => void` | No | Custom error handler (defaults to console.warn) |
 
@@ -56,14 +56,14 @@ const result = await generateText({
 Accepts both Commet customer IDs and external IDs:
 
 ```typescript
-// Using externalId (recommended)
+// Using your app's user ID (recommended)
 tracked(model, { commet, feature: "ai", customerId: "user_123" });
 
 // Using Commet customer ID
 tracked(model, { commet, feature: "ai", customerId: "cus_abc123" });
 ```
 
-IDs starting with `cus_` are sent as `customerId`, others as `externalId`.
+IDs starting with `cus_` are treated as Commet customer IDs, others as your app's user IDs.
 
 ## Streaming Support
 

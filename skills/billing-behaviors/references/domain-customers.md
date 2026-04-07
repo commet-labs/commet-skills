@@ -7,11 +7,11 @@ Customers are the billable entities. Each customer represents a company or perso
 - `fullName`: Company or person name
 - `billingEmail`: Where invoices are sent
 - `timezone`: Display metadata (all billing runs in UTC)
-- `externalId`: Your app's user/org ID (for SDK integration)
+- `id`: Your app's user/org ID (for SDK integration)
 
-## External ID
+## Customer ID
 
-Links your app's users to Commet customers. Used in SDK calls for usage tracking, seat changes, etc.
+Links your app's users to Commet customers. Pass as `id` when creating customers, or as `customerId` in SDK calls for usage tracking, seat changes, etc.
 
 ## Address
 

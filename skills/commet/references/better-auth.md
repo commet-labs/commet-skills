@@ -56,7 +56,7 @@ export const auth = betterAuth({
 
 ### Customer auto-creation
 
-When `createCustomerOnSignUp: true`, the plugin hooks into Better Auth's `user.create` lifecycle. On signup, it creates a Commet customer with `externalId = user.id` and `billingEmail = user.email`.
+When `createCustomerOnSignUp: true`, the plugin hooks into Better Auth's `user.create` lifecycle. On signup, it creates a Commet customer with `id = user.id` and `billingEmail = user.email`.
 
 ## Client Setup
 
