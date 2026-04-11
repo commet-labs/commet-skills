@@ -12,9 +12,9 @@ inputs:
     description: Commet API key (ck_xxx format)
     required: true
 references:
-  - tracked-middleware.md
-  - cost-calculation.md
-  - balance-model.md
+  - references/tracked-middleware.md
+  - references/cost-calculation.md
+  - references/balance-model.md
 ---
 
 # AI Billing

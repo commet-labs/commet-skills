@@ -2,6 +2,9 @@
   "mcpServers": {
     "commet": {
       "url": "https://commet.co/mcp"
+    },
+    "commet-sandbox": {
+      "url": "https://sandbox.commet.co/mcp"
     }
   }
 }
