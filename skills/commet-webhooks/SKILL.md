@@ -58,13 +58,13 @@ import { Commet } from "@commet/node";
 const commet = new Commet({ apiKey: process.env.COMMET_API_KEY! });
 
 // Check subscription status -- do this, not webhook state sync
-const { data: sub } = await commet.subscriptions.get("user_123");
+const { data: sub } = await commet.subscriptions.getActive({ customerId: "user_123" });
 if (sub?.status === "active" || sub?.status === "trialing") {
   // grant access
 }
 
 // Check feature access
-const { data } = await commet.features.check({
+const { data } = await commet.features.get({
   code: "advanced_analytics",
   customerId: "user_123",
 });

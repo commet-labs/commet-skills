@@ -71,7 +71,7 @@ commet pull
 Generates `.commet/types.d.ts`. This file provides TypeScript autocomplete for:
 - Plan codes (e.g. `"pro"`, `"enterprise"`)
 - Feature codes (e.g. `"api_calls"`, `"team_members"`)
-- Seat types (e.g. `"editor"`, `"viewer"`)
+- Seat feature codes (e.g. `"editor"`, `"viewer"` -- features with type="seats")
 
 ### 5. Commit the types file
 
@@ -103,7 +103,7 @@ const commet = new Commet({
 
 ## Updating Types After Dashboard Changes
 
-When you add, rename, or remove plans, features, or seat types in the Commet dashboard:
+When you add, rename, or remove plans or features (including seat features) in the Commet dashboard:
 
 ```bash
 commet pull

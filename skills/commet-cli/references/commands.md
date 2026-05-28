@@ -64,7 +64,7 @@ List resources for the linked organization.
 
 ```bash
 commet list features    # List all features
-commet list seats       # List all seat types
+commet list seats       # List all features with type="seats"
 commet list plans       # List all plans
 ```
 
@@ -80,7 +80,7 @@ commet switch
 
 ### commet pull
 
-Generate `.commet/types.d.ts` from your dashboard configuration. This file provides TypeScript autocomplete for plan codes, feature codes, and seat types across all `@commet/node` SDK calls.
+Generate `.commet/types.d.ts` from your dashboard configuration. This file provides TypeScript autocomplete for plan codes and feature codes across all `@commet/node` SDK calls.
 
 ```bash
 commet pull
@@ -88,7 +88,7 @@ commet pull
 
 **Output:** Creates or updates `.commet/types.d.ts` in the project root.
 
-**When to re-run:** After adding, renaming, or removing plans, features, or seat types in the Commet dashboard.
+**When to re-run:** After adding, renaming, or removing plans or features in the Commet dashboard.
 
 **Tip:** Commit `.commet/types.d.ts` to version control so the entire team gets autocomplete.
 

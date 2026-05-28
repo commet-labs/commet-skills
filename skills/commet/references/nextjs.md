@@ -6,11 +6,11 @@ Instead of syncing state via webhooks, query the SDK directly when you need to k
 
 ```typescript
 // Check subscription status on any page/action
-const { data: sub } = await commet.subscriptions.get(user.id);
+const { data: sub } = await commet.subscriptions.getActive({ customerId: user.id });
 if (sub?.status === "active" || sub?.status === "trialing") { /* has access */ }
 
 // Check feature access
-const { data } = await commet.features.check({ code: "api_calls", customerId: user.id });
+const { data } = await commet.features.get({ code: "api_calls", customerId: user.id });
 
 // List all features
 const { data: features } = await commet.features.list(user.id);
@@ -145,7 +145,7 @@ export async function createCheckout(planCode: string) {
   }
 
   // Check existing subscription
-  const existing = await commet.subscriptions.get(user.id);
+  const existing = await commet.subscriptions.getActive({ customerId: user.id });
   if (existing.data?.status === "active") redirect("/dashboard/billing?error=already_subscribed");
   if (existing.data?.status === "pending_payment" && existing.data.checkoutUrl) {
     redirect(existing.data.checkoutUrl);
@@ -184,7 +184,7 @@ const getCachedPlans = unstable_cache(
 ```typescript
 export default async function Page() {
   const user = await getUser();
-  const { data } = await commet.features.check({ code: "advanced_analytics", customerId: user.id });
+  const { data } = await commet.features.get({ code: "advanced_analytics", customerId: user.id });
 
   if (!data?.allowed) {
     return <UpgradePrompt feature="Advanced Analytics" />;

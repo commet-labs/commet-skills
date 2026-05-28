@@ -31,7 +31,7 @@ commet link           # Link project to organization
 commet pull           # Generate .commet/types.d.ts
 ```
 
-After `commet pull`, SDK calls get autocomplete for `planCode`, `feature`, and `seatType` parameters:
+After `commet pull`, SDK calls get autocomplete for `planCode`, `feature`, and `featureCode` parameters (`featureCode` maps to `feature.code` for features with type="seats"):
 
 ```typescript
 await commet.usage.track({
@@ -58,7 +58,7 @@ await commet.subscriptions.create({
 | `commet info` | Show project and auth status |
 | `commet pull` | Generate `.commet/types.d.ts` |
 | `commet list features` | List features for the linked organization |
-| `commet list seats` | List seat types |
+| `commet list seats` | List features with type="seats" |
 | `commet list plans` | List plans |
 | `commet create [name]` | Scaffold new project from a billing template |
 
@@ -91,7 +91,7 @@ See [references/templates.md](references/templates.md) for details on each templ
 
 3. **Two environments, two logins.** Sandbox (`sandbox.commet.co`) and Production (`commet.co`) are isolated. Switch by logging out and back in.
 
-4. **Run `commet pull` after dashboard changes.** When you add plans, features, or seat types in the dashboard, re-run `commet pull` to update the local types file.
+4. **Run `commet pull` after dashboard changes.** When you add plans or features in the dashboard, re-run `commet pull` to update the local types file.
 
 ## When to Load References
 

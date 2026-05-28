@@ -52,9 +52,9 @@ Sandbox: `https://sandbox.commet.co`. Production: `https://commet.co`.
 1. **Setup**: `commet login` -> `commet link` -> `commet pull` (generates `.commet/types.d.ts` for autocomplete)
 2. **Create customer**: On user signup, create Commet customer with `id` = your user ID
 3. **Create subscription**: Call `subscriptions.create()` -> redirect to `checkoutUrl`
-4. **Check state**: Query `subscriptions.get()` to check subscription status (preferred over webhooks)
+4. **Check state**: Query `subscriptions.getActive()` to check subscription status (preferred over webhooks)
 5. **Track usage**: `usage.track()` for metered features, `seats.add/remove/set()` for seats
-6. **Feature gating**: `features.check()`, `features.canUse()`, `features.get()`
+6. **Feature gating**: `features.get()`, `features.canUse()`, `features.list()`
 7. **Customer portal**: `portal.getUrl()` -> redirect for self-service billing management
 
 ## SDK Reference
@@ -81,32 +81,21 @@ See [references/billing-concepts.md](references/billing-concepts.md) for plan st
 
 ### Query-first, webhooks optional
 
-Always query subscription/feature state directly with the SDK instead of relying on webhooks to sync state. The recommended pattern is to call `subscriptions.get()`, `features.check()`, or `features.list()` when you need to know a customer's status. Webhooks are useful for background tasks (sending emails, provisioning resources) but should never be the source of truth for access control.
+Always query subscription/feature state directly with the SDK instead of relying on webhooks to sync state. The recommended pattern is to call `subscriptions.getActive()`, `features.get()`, or `features.list()` when you need to know a customer's status. Webhooks are useful for background tasks (sending emails, provisioning resources) but should never be the source of truth for access control.
 
 ```typescript
 // Recommended: query state directly
-const { data: sub } = await commet.subscriptions.get("user_123");
+const { data: sub } = await commet.subscriptions.getActive({ customerId: "user_123" });
 if (sub?.status === "active") { /* grant access */ }
 
 // Recommended: feature gating
-const { data } = await commet.features.check({ code: "advanced_analytics", customerId: "user_123" });
+const { data } = await commet.features.get({ code: "advanced_analytics", customerId: "user_123" });
 if (!data?.allowed) { /* show upgrade prompt */ }
 ```
 
 ### Customer identification
 
 Always use `customerId` (your user/org ID) to identify customers. The SDK accepts both your own IDs and Commet's `cus_xxx` IDs.
-
-### Customer-scoped context
-
-```typescript
-const customer = commet.customer("user_123");
-await customer.usage.track("api_calls", 1);
-await customer.features.canUse("team_members");
-await customer.seats.add("editor");
-await customer.subscription.get();
-await customer.portal.getUrl();
-```
 
 ### Idempotency
 

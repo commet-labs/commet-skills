@@ -17,8 +17,8 @@ Plan (pricing template)
 
 | Type | What It Is | How Charged | SDK Method |
 |------|-----------|-------------|------------|
-| **Boolean** | On/off access | Included in plan base | `features.check(code)` |
-| **Metered** | Measurable consumption | Overage at period end | `usage.track(feature)` |
+| **Boolean** | On/off access | Included in plan base | `features.get(code)` |
+| **Usage** | Measurable consumption | Overage at period end | `usage.track(feature)` |
 | **Seats** | Per-user licenses | Advance + prorated true-up | `seats.add/remove/set()` |
 
 ### Feature code = SDK identifier

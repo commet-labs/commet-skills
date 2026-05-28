@@ -86,9 +86,9 @@ Module-specific knowledge for understanding the codebase:
 - [references/domain-billing-engine.md](references/domain-billing-engine.md) - Billing engine orchestration, calculator resolution, processing flow, invoice line types, monthly resets
 - [references/domain-subscriptions.md](references/domain-subscriptions.md) - Subscription states, creation flow, billing period, currency, trials, pause, cancellation
 - [references/domain-plans.md](references/domain-plans.md) - Plan structure, free vs paid, PlanPrice, PlanFeature, introductory offers, regional pricing
-- [references/domain-features.md](references/domain-features.md) - Feature types (boolean, metered, seats), feature codes as SDK identifiers
+- [references/domain-features.md](references/domain-features.md) - Feature types (boolean, metered, seats), feature codes as SDK identifiers. Seats are features with type="seats"; featureCode identifies the seat variant
 - [references/domain-usage.md](references/domain-usage.md) - Consumption models (metered, credits, balance), usage events, AI token tracking, subscription balance
-- [references/domain-seats.md](references/domain-seats.md) - Seat billing (advance + true-up), proration, seat types, SDK integration
+- [references/domain-seats.md](references/domain-seats.md) - Seat billing (advance + true-up), proration, seats as features (type="seats"), SDK integration
 - [references/domain-customers.md](references/domain-customers.md) - Customer fields, external ID, address, customer credits, business flow
 - [references/domain-plan-groups.md](references/domain-plan-groups.md) - Plan grouping for upgrades/downgrades, business rules
 - [references/domain-addons.md](references/domain-addons.md) - Addon system, activation/deactivation, billing, consumption model compatibility

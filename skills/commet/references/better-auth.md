@@ -82,7 +82,7 @@ await authClient.subscription.cancel({ reason: "too_expensive" });
 // Features
 const { data: features } = await authClient.features.list();
 const { data: feature } = await authClient.features.get("api_calls");
-const { data: check } = await authClient.features.check("custom_branding");
+const { data: check } = await authClient.features.get("custom_branding");
 const { data: canUse } = await authClient.features.canUse("team_members");
 // canUse: { allowed: boolean, willBeCharged: boolean }
 
@@ -91,10 +91,10 @@ await authClient.usage.track({ feature: "api_calls", value: 1 });
 await authClient.usage.track({ feature: "api_calls", value: 1, properties: { endpoint: "/users" } });
 
 // Seats
-const { data: seats } = await authClient.seats.list();
-await authClient.seats.add({ seatType: "editor", count: 1 });
-await authClient.seats.remove({ seatType: "editor", count: 1 });
-await authClient.seats.set({ seatType: "editor", count: 10 });
+const { data: seats } = await authClient.seats.getAllBalances();
+await authClient.seats.add({ featureCode: "editor", count: 1 });
+await authClient.seats.remove({ featureCode: "editor", count: 1 });
+await authClient.seats.set({ featureCode: "editor", count: 10 });
 await authClient.seats.setAll({ editor: 10, viewer: 50 });
 
 // Customer portal - redirects to Commet portal

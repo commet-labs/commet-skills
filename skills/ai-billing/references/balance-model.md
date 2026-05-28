@@ -42,9 +42,10 @@ Use this when you want hard spending limits. The customer cannot exceed their in
 
 ```typescript
 // Check balance before making the AI call
-const balance = await commet.subscriptions.getBalance(customerId, "ai_generation");
+const { data: sub } = await commet.subscriptions.getActive({ customerId });
+const balanceFeature = sub?.features?.find((f) => f.code === "ai_generation");
 
-if (balance.currentBalance <= 0) {
+if (!balanceFeature || balanceFeature.remaining <= 0) {
   return new Response("Insufficient balance. Please top up.", { status: 402 });
 }
 
