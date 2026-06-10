@@ -10,10 +10,10 @@ const { data: sub } = await commet.subscriptions.getActive({ customerId: user.id
 if (sub?.status === "active" || sub?.status === "trialing") { /* has access */ }
 
 // Check feature access
-const { data } = await commet.features.get({ code: "api_calls", customerId: user.id });
+const { data } = await commet.featureAccess.get({ code: "api_calls", customerId: user.id });
 
 // List all features
-const { data: features } = await commet.features.list(user.id);
+const { data: features } = await commet.featureAccess.list({ customerId: user.id });
 ```
 
 ## Webhooks Route Handler (Optional)
@@ -184,7 +184,7 @@ const getCachedPlans = unstable_cache(
 ```typescript
 export default async function Page() {
   const user = await getUser();
-  const { data } = await commet.features.get({ code: "advanced_analytics", customerId: user.id });
+  const { data } = await commet.featureAccess.get({ code: "advanced_analytics", customerId: user.id });
 
   if (!data?.allowed) {
     return <UpgradePrompt feature="Advanced Analytics" />;

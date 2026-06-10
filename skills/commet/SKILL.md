@@ -54,7 +54,7 @@ Sandbox: `https://sandbox.commet.co`. Production: `https://commet.co`.
 3. **Create subscription**: Call `subscriptions.create()` -> redirect to `checkoutUrl`
 4. **Check state**: Query `subscriptions.getActive()` to check subscription status (preferred over webhooks)
 5. **Track usage**: `usage.track()` for metered features, `seats.add/remove/set()` for seats
-6. **Feature gating**: `features.get()`, `features.canUse()`, `features.list()`
+6. **Feature gating**: `featureAccess.get()`, `featureAccess.canUse()`, `featureAccess.list()`
 7. **Customer portal**: `portal.getUrl()` -> redirect for self-service billing management
 
 ## SDK Reference
@@ -81,7 +81,7 @@ See [references/billing-concepts.md](references/billing-concepts.md) for plan st
 
 ### Query-first, webhooks optional
 
-Always query subscription/feature state directly with the SDK instead of relying on webhooks to sync state. The recommended pattern is to call `subscriptions.getActive()`, `features.get()`, or `features.list()` when you need to know a customer's status. Webhooks are useful for background tasks (sending emails, provisioning resources) but should never be the source of truth for access control.
+Always query subscription/feature state directly with the SDK instead of relying on webhooks to sync state. The recommended pattern is to call `subscriptions.getActive()`, `featureAccess.get()`, or `featureAccess.list()` when you need to know a customer's status. Webhooks are useful for background tasks (sending emails, provisioning resources) but should never be the source of truth for access control.
 
 ```typescript
 // Recommended: query state directly
@@ -89,7 +89,7 @@ const { data: sub } = await commet.subscriptions.getActive({ customerId: "user_1
 if (sub?.status === "active") { /* grant access */ }
 
 // Recommended: feature gating
-const { data } = await commet.features.get({ code: "advanced_analytics", customerId: "user_123" });
+const { data } = await commet.featureAccess.get({ code: "advanced_analytics", customerId: "user_123" });
 if (!data?.allowed) { /* show upgrade prompt */ }
 ```
 

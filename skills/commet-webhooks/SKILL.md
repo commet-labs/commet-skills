@@ -64,7 +64,7 @@ if (sub?.status === "active" || sub?.status === "trialing") {
 }
 
 // Check feature access
-const { data } = await commet.features.get({
+const { data } = await commet.featureAccess.get({
   code: "advanced_analytics",
   customerId: "user_123",
 });

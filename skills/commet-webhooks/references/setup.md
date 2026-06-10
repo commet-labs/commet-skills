@@ -90,7 +90,7 @@ After 8 failed attempts, the delivery is marked as failed. Monitor delivery stat
 
 4. **Handle idempotently.** Retries mean you may receive the same event multiple times. Use `subscriptionId` or `invoiceId` from the payload to deduplicate.
 
-5. **Don't use webhooks for access control.** Webhooks can be delayed, retried, or arrive out of order. Always query `commet.subscriptions.getActive()` or `commet.features.get()` for real-time access decisions.
+5. **Don't use webhooks for access control.** Webhooks can be delayed, retried, or arrive out of order. Always query `commet.subscriptions.getActive()` or `commet.featureAccess.get()` for real-time access decisions.
 
 ## Environment Variables
 

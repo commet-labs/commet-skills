@@ -21,7 +21,7 @@ const commet = new Commet({
 ```typescript
 // Create (idempotent with id)
 await commet.customers.create({
-  email: string,              // billingEmail - required
+  email: string,              // Required
   id?: string,                // Your user/org ID
   fullName?: string,
   domain?: string,
@@ -31,7 +31,7 @@ await commet.customers.create({
 });
 
 // Batch create
-await commet.customers.createBatch({ customers: CreateParams[] });
+await commet.customers.createBatch({ customers: CreateCustomerParams[] });
 
 // Get by Commet ID
 await commet.customers.get("cus_xxx");
@@ -159,22 +159,29 @@ const { data: all } = await commet.seats.getAllBalances({ customerId: "user_123"
 // { editor: { current: 10, asOf: "..." }, viewer: { current: 50, asOf: "..." } }
 ```
 
-### commet.features
+### commet.featureAccess
 
-Check feature access without parsing subscription data.
+Check a customer's feature access without parsing subscription data.
 
 ```typescript
 // Get detailed feature info
-const { data } = await commet.features.get({ code: "team_members", customerId: "user_123" });
+const { data } = await commet.featureAccess.get({ code: "team_members", customerId: "user_123" });
 // data: { code, name, type, allowed, current, included, remaining, overage, unlimited, ... }
 
 // Check if can use one more unit (metered/seats)
-const { data } = await commet.features.canUse({ code: "team_members", customerId: "user_123" });
+const { data } = await commet.featureAccess.canUse({ code: "team_members", customerId: "user_123" });
 // data: { allowed: boolean, willBeCharged: boolean, reason?: string }
 
-// List all features
-const { data } = await commet.features.list("user_123");
+// List all features for a customer
+const { data } = await commet.featureAccess.list({ customerId: "user_123" });
 // data: FeatureAccess[]
+```
+
+### commet.features
+
+```typescript
+// List the org's feature catalog (definitions, not customer access)
+const { data } = await commet.features.list();
 ```
 
 ### commet.portal

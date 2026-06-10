@@ -5,7 +5,7 @@ Customers are the billable entities. Each customer represents a company or perso
 ## Key Fields
 
 - `fullName`: Company or person name
-- `billingEmail`: Where invoices are sent
+- `email`: Where invoices are sent
 - `timezone`: Display metadata (all billing runs in UTC)
 - `id`: Your app's user/org ID (for SDK integration)
 

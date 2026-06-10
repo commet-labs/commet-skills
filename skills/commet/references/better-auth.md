@@ -56,7 +56,7 @@ export const auth = betterAuth({
 
 ### Customer auto-creation
 
-When `createCustomerOnSignUp: true`, the plugin hooks into Better Auth's `user.create` lifecycle. On signup, it creates a Commet customer with `id = user.id` and `billingEmail = user.email`.
+When `createCustomerOnSignUp: true`, the plugin hooks into Better Auth's `user.create` lifecycle. On signup, it creates a Commet customer with `id = user.id` and `email = user.email`.
 
 ## Client Setup
 
@@ -82,7 +82,7 @@ await authClient.subscription.cancel({ reason: "too_expensive" });
 // Features
 const { data: features } = await authClient.features.list();
 const { data: feature } = await authClient.features.get("api_calls");
-const { data: check } = await authClient.features.get("custom_branding");
+const { data: check } = await authClient.features.check("custom_branding");
 const { data: canUse } = await authClient.features.canUse("team_members");
 // canUse: { allowed: boolean, willBeCharged: boolean }
 
