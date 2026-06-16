@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     return new Response("Invalid signature", { status: 403 });
   }
 
-  // payload: { event, timestamp, organizationId, data }
+  // payload: { event, timestamp, organizationId, mode, apiVersion, data }
   return new Response("OK", { status: 200 });
 }
 ```

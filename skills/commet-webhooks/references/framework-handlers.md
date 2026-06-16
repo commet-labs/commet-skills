@@ -20,17 +20,18 @@ export const POST = Webhooks({
   },
 
   onSubscriptionActivated: async (payload) => {
-    await sendWelcomeEmail(payload.data.externalId);
-    await provisionResources(payload.data.externalId);
+    await sendWelcomeEmail(payload.data.customerId);
+    await provisionResources(payload.data.customerId);
   },
 
   onSubscriptionCanceled: async (payload) => {
-    await sendCancellationEmail(payload.data.externalId);
-    await scheduleResourceCleanup(payload.data.externalId);
+    await sendCancellationEmail(payload.data.customerId);
+    await scheduleResourceCleanup(payload.data.customerId);
   },
 
-  onSubscriptionUpdated: async (payload) => {
-    await syncExternalSystem(payload.data.subscriptionId);
+  // Aggregate entitlement event — keep access in sync in one handler
+  onCustomerStateChanged: async (payload) => {
+    await syncEntitlements(payload.data.customerId, payload.data);
   },
 
   // Catch-all handler (runs in parallel with specific handlers)
@@ -85,10 +86,10 @@ app.post(
 
     switch (payload.event) {
       case "subscription.activated":
-        await sendWelcomeEmail(payload.data.externalId);
+        await sendWelcomeEmail(payload.data.customerId);
         break;
       case "subscription.canceled":
-        await sendCancellationEmail(payload.data.externalId);
+        await sendCancellationEmail(payload.data.customerId);
         break;
       case "payment.failed":
         await alertCustomerPaymentFailed(payload.data.customerId);
@@ -131,10 +132,10 @@ export async function POST(request: Request) {
 
   switch (payload.event) {
     case "subscription.activated":
-      await sendWelcomeEmail(payload.data.externalId);
+      await sendWelcomeEmail(payload.data.customerId);
       break;
     case "subscription.canceled":
-      await sendCancellationEmail(payload.data.externalId);
+      await sendCancellationEmail(payload.data.customerId);
       break;
   }
 
@@ -165,10 +166,10 @@ export const auth = betterAuth({
         webhooks({
           secret: process.env.COMMET_WEBHOOK_SECRET!,
           onSubscriptionActivated: async (payload) => {
-            await sendWelcomeEmail(payload.data.externalId);
+            await sendWelcomeEmail(payload.data.customerId);
           },
           onSubscriptionCanceled: async (payload) => {
-            await sendCancellationEmail(payload.data.externalId);
+            await sendCancellationEmail(payload.data.customerId);
           },
         }),
       ],
@@ -195,7 +196,7 @@ export const POST = Webhooks({
   onSubscriptionActivated: async (payload) => {
     // Queue heavy work instead of doing it inline
     await queue.add("provision-customer", {
-      externalId: payload.data.externalId,
+      customerId: payload.data.customerId,
       subscriptionId: payload.data.subscriptionId,
     });
   },
