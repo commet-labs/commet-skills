@@ -7,12 +7,15 @@ import { Commet } from "@commet/node";
 
 const commet = new Commet({
   apiKey: string,          // Required. Format: ck_xxx
-  environment?: "sandbox" | "production", // Default: "sandbox"
+  apiVersion?: string,     // Pin requests to a specific API version
   debug?: boolean,         // Log requests/responses
   timeout?: number,        // Request timeout in ms (default: 30000)
   retries?: number,        // Auto-retry on 408/429/5xx (default: 3)
+  telemetry?: boolean,     // Set false to disable client telemetry
 });
 ```
+
+There is no `environment` option: the organization behind the API key decides sandbox vs live. A sandbox organization's key only touches sandbox data.
 
 ## Resources
 
@@ -53,7 +56,7 @@ const { data: plans } = await commet.plans.list();
 // Include private plans
 const { data: all } = await commet.plans.list({ includePrivate: true });
 
-// Get plan by code (autocomplete after `commet pull`)
+// Get plan by code
 const { data: plan } = await commet.plans.get("pro");
 // plan.prices: [{ billingInterval, price, isDefault }]
 // plan.features: [{ code, name, type, includedAmount, overageUnitPrice, ... }]
@@ -249,18 +252,17 @@ interface ApiResponse<T> {
 ## CLI
 
 ```bash
-commet login          # Authenticate with Commet
+commet login          # Authenticate with Commet (browser device-code flow)
 commet logout         # Logout
-commet link           # Link project to organization
-commet pull           # Generate .commet/types.d.ts (autocomplete for plan codes and feature codes)
-commet list           # List organizations
-commet switch         # Switch active organization
-commet info           # Show project info
-commet whoami         # Show authenticated user
+commet link           # Link project to an organization (--org <slug-or-id> to switch, --clear to unlink)
+commet orgs           # List organizations you have access to
+commet pull           # Sync remote billing config -> commet.config.ts
+commet push           # Push commet.config.ts changes -> remote
+commet listen <url>   # Forward webhook events to a local server
 commet create [name]  # Scaffold new project from template
 ```
 
-After `commet pull`, TypeScript autocomplete works for `planCode`, `feature`, `featureCode` parameters.
+`commet pull` writes your features and plans to `commet.config.ts` (config as code); edit the file and run `commet push` to apply changes. Per-resource commands (`commet customers`, `commet subscriptions`, `commet plans`, `commet usage`, ...) mirror the SDK from the terminal.
 
 ### Templates (`commet create`)
 

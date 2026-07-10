@@ -153,13 +153,17 @@ npm install @commet/better-auth
 ```typescript
 // lib/auth.ts
 import { betterAuth } from "better-auth";
+import { Commet } from "@commet/node";
 import { commet, webhooks } from "@commet/better-auth";
+
+const commetClient = new Commet({
+  apiKey: process.env.COMMET_API_KEY!,
+});
 
 export const auth = betterAuth({
   plugins: [
     commet({
-      apiKey: process.env.COMMET_API_KEY!,
-      environment: "production",
+      client: commetClient,
       createCustomerOnSignUp: true,
       use: [
         webhooks({

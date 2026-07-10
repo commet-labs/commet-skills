@@ -14,7 +14,7 @@ npx skills add commet-labs/commet-skills
 |-------|-------------|
 | `commet` | Core SDK integration — @commet/node, @commet/next, @commet/ai-sdk, @commet/better-auth |
 | `billing-behaviors` | Business logic rules — proration, plan changes, subscription lifecycle |
-| `commet-cli` | CLI commands — login, link, pull types, scaffold from templates |
+| `commet-cli` | CLI commands — login, link, config push/pull, webhook forwarding, scaffold from templates |
 | `commet-webhooks` | Webhook setup — event handling, signature verification, framework handlers |
 | `ai-billing` | AI token billing — tracked() middleware, balance model, cost calculation |
 

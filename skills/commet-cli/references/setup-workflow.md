@@ -33,7 +33,7 @@ npm install
 npm run dev
 ```
 
-Your project is ready with billing integration working in sandbox mode.
+Your project is ready with billing integration working against your sandbox organization.
 
 ## Existing Project Setup
 
@@ -52,7 +52,7 @@ npm install @commet/node
 commet login
 ```
 
-Opens the browser for OAuth. Select your environment (Sandbox for development, Production for live).
+Opens the browser for a device-code flow. One login covers everything -- sandbox vs live is decided by the organization you link, not by how you log in.
 
 ### 3. Link project to organization
 
@@ -60,35 +60,51 @@ Opens the browser for OAuth. Select your environment (Sandbox for development, P
 commet link
 ```
 
-Creates `.commet/config.json` with your organization settings.
+Creates `.commet/config.json` with your organization settings and auto-generates an API key for resource commands. Link a sandbox organization for development.
 
-### 4. Pull types for autocomplete
+### 4. Pull your billing config
 
 ```bash
 commet pull
 ```
 
-Generates `.commet/types.d.ts`. This file provides TypeScript autocomplete for:
-- Plan codes (e.g. `"pro"`, `"enterprise"`)
-- Feature codes (e.g. `"api_calls"`, `"team_members"`)
-- Seat feature codes (e.g. `"editor"`, `"viewer"` -- features with type="seats")
+Generates `commet.config.ts` in the project root -- your features and plans as code:
 
-### 5. Commit the types file
+```typescript
+import { defineConfig } from "@commet/node";
 
-```bash
-git add .commet/types.d.ts
-git commit -m "chore: add commet types for autocomplete"
+export default defineConfig({
+  features: {
+    api_calls: { name: "API Calls", type: "usage", unitName: "call" },
+  },
+  plans: {
+    pro: {
+      name: "Pro",
+      defaultInterval: "monthly",
+      prices: [{ interval: "monthly", amount: 9900 }],
+      features: { api_calls: { included: 10000 } },
+    },
+  },
+});
 ```
 
-The entire team gets autocomplete without each person running `commet pull`.
+### 5. Commit the config file
+
+```bash
+git add commet.config.ts
+git commit -m "chore: add commet billing config"
+```
+
+Your billing config is versioned and reviewable like any other code. (`.commet/` stays gitignored -- it holds the project API key.)
 
 ### 6. Configure environment variables
 
 ```env
 COMMET_API_KEY=ck_xxx             # From Commet dashboard > Settings > API Keys
-COMMET_ENVIRONMENT=sandbox        # sandbox | production
 COMMET_WEBHOOK_SECRET=whsec_xxx   # Optional, from dashboard > Webhooks
 ```
+
+The key's organization decides sandbox vs live -- a sandbox organization's key only touches sandbox data.
 
 ### 7. Initialize the SDK
 
@@ -97,29 +113,37 @@ import { Commet } from "@commet/node";
 
 const commet = new Commet({
   apiKey: process.env.COMMET_API_KEY!,
-  environment: "production",
 });
 ```
 
-## Updating Types After Dashboard Changes
+## Keeping Config in Sync
 
-When you add, rename, or remove plans or features (including seat features) in the Commet dashboard:
+Sync works in both directions:
+
+**Dashboard changed?** Pull the remote state into your config file:
 
 ```bash
 commet pull
-git add .commet/types.d.ts
-git commit -m "chore: update commet types"
+git add commet.config.ts
+git commit -m "chore: sync commet billing config"
 ```
 
-## Switching Environments
-
-Sandbox and Production are isolated. To switch:
+**Config file changed?** Push your local edits to Commet:
 
 ```bash
-commet logout
-commet login          # Select the other environment
-commet link           # Link to the org in that environment
-commet pull           # Pull types for that environment
+commet push --dry-run     # Preview the diff
+commet push               # Apply
+```
+
+## Switching Between Sandbox and Live
+
+There is one base URL and one login. Sandbox and live are organization modes -- switch by linking a different organization:
+
+```bash
+commet orgs                        # List your orgs and their modes
+commet link --org acme-sandbox     # Link the sandbox org
+commet link --org acme             # Link the live org
+commet pull                        # Re-sync commet.config.ts for that org
 ```
 
 ## Multiple Organizations
@@ -127,13 +151,15 @@ commet pull           # Pull types for that environment
 If you work with multiple organizations:
 
 ```bash
-commet switch         # Prompts for organization selection
-commet pull           # Re-pull types for the new org
+commet orgs                   # See what you have access to
+commet link --org <slug>      # Switch the project link
+commet pull                   # Re-pull the config for the new org
 ```
 
 ## CI/CD Considerations
 
-The CLI is interactive and designed for local development. In CI/CD:
-- Use `COMMET_API_KEY` environment variable directly -- no `commet login` needed
-- Commit `.commet/types.d.ts` so CI doesn't need `commet pull`
+In CI/CD, skip `commet login` and `commet link` entirely:
+- Set the `COMMET_API_KEY` environment variable -- it takes precedence over any project config
+- Use `--yes` to skip prompts and `--output agent` for structured JSON
+- `COMMET_API_KEY=ck_... commet push --yes` applies `commet.config.ts` in a pipeline
 - The SDK reads `COMMET_API_KEY` from the environment automatically
