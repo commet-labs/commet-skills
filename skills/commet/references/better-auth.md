@@ -12,7 +12,6 @@ import { commet, portal, subscriptions, features, usage, seats, webhooks } from 
 
 const commetClient = new Commet({
   apiKey: process.env.COMMET_API_KEY!,
-  environment: "production",
 });
 
 export const auth = betterAuth({

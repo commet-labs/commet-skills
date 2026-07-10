@@ -12,12 +12,11 @@ import { generateText } from "ai";
 
 const commet = new Commet({
   apiKey: process.env.COMMET_API_KEY!,
-  environment: "production",
 });
 
 const model = tracked(anthropic("claude-3-opus"), {
   commet,                          // Commet SDK instance
-  feature: "ai_generation",       // Feature code (autocomplete after `commet pull`)
+  feature: "ai_generation",       // Feature code configured in the dashboard
   customerId: "user_123",         // your ID or cus_xxx
   idempotencyKey?: string,        // Optional dedup key
   onTrackingError?: (error) => {  // Optional error handler

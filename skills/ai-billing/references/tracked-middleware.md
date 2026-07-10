@@ -20,7 +20,6 @@ import { generateText } from "ai";
 
 const commet = new Commet({
   apiKey: process.env.COMMET_API_KEY!,
-  environment: "production",
 });
 
 const result = await generateText({
@@ -141,7 +140,7 @@ The `feature` string must match a feature code configured in the Commet dashboar
 3. Set the margin (basis points) for that feature on the plan
 4. Use the feature code as the `feature` option in `tracked()`
 
-After running `commet pull`, feature codes get autocomplete support in your editor.
+Run `commet pull` to sync the feature catalog into `commet.config.ts` and see the available feature codes.
 
 ## Token Counting
 

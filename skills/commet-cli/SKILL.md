@@ -1,6 +1,6 @@
 ---
 name: commet-cli
-description: Use when working with the Commet CLI -- logging in, linking projects, pulling types for autocomplete, scaffolding new projects from templates (fixed, seats, metered, credits, balance-ai, balance-fixed), or managing organizations.
+description: Use when working with the Commet CLI -- logging in, linking projects, syncing billing config as code (commet pull/push), forwarding webhooks locally (commet listen), scaffolding new projects from templates (fixed, seats, metered, credits, balance-ai, balance-fixed), or running resource commands from the terminal.
 license: MIT
 metadata:
   author: commet
@@ -15,7 +15,7 @@ references:
 
 # Commet CLI
 
-Generate TypeScript types from your Commet dashboard for autocomplete, scaffold new projects from billing templates, and manage organizations. Requires Node.js 18+.
+Billing infrastructure as code: sync features and plans between Commet and a local `commet.config.ts`, forward webhook events to your dev server, scaffold new projects from billing templates, and manage resources (customers, subscriptions, plans, ...) from the terminal. Requires Node.js 18+.
 
 ## Install
 
@@ -27,21 +27,27 @@ npm install -g commet
 
 ```bash
 commet login          # Authenticate in browser
-commet link           # Link project to organization
-commet pull           # Generate .commet/types.d.ts
+commet link           # Link project to an organization
+commet pull           # Sync remote config -> commet.config.ts
 ```
 
-After `commet pull`, SDK calls get autocomplete for `planCode`, `feature`, and `featureCode` parameters (`featureCode` maps to `feature.code` for features with type="seats"):
+After `commet pull`, your billing config lives in `commet.config.ts`. Edit it locally and run `commet push` to apply changes to Commet:
 
 ```typescript
-await commet.usage.track({
-  customerId: "user_123",
-  feature: "api_calls",       // autocomplete from pulled types
-});
+import { defineConfig } from "@commet/node";
 
-await commet.subscriptions.create({
-  customerId: "user_123",
-  planCode: "pro",            // autocomplete from pulled types
+export default defineConfig({
+  features: {
+    api_calls: { name: "API Calls", type: "usage", unitName: "call" },
+  },
+  plans: {
+    pro: {
+      name: "Pro",
+      defaultInterval: "monthly",
+      prices: [{ interval: "monthly", amount: 9900 }],
+      features: { api_calls: { included: 10000 } },
+    },
+  },
 });
 ```
 
@@ -49,18 +55,19 @@ await commet.subscriptions.create({
 
 | Command | Description |
 |---------|-------------|
+| `commet create [name]` | Scaffold new project from a billing template |
 | `commet login` | Authenticate with Commet (opens browser) |
 | `commet logout` | Remove credentials |
-| `commet whoami` | Show auth status and current organization |
-| `commet link` | Link project to an organization |
-| `commet unlink` | Unlink project |
-| `commet switch` | Switch to a different organization |
-| `commet info` | Show project and auth status |
-| `commet pull` | Generate `.commet/types.d.ts` |
-| `commet list features` | List features for the linked organization |
-| `commet list seats` | List features with type="seats" |
-| `commet list plans` | List plans |
-| `commet create [name]` | Scaffold new project from a billing template |
+| `commet link` | Link project to an organization; re-run to switch |
+| `commet link --org <slug-or-id>` | Link or switch non-interactively |
+| `commet link --clear` | Unlink project |
+| `commet orgs` | List organizations you have access to |
+| `commet pull` | Sync remote config into `commet.config.ts` |
+| `commet push` | Push `commet.config.ts` changes to Commet |
+| `commet listen <url>` | Forward webhook events to a local server |
+| `commet <resource> <action>` | Resource commands mirroring the SDK (see below) |
+
+Resource commands exist for: `customers`, `subscriptions`, `plans`, `features`, `feature-access`, `seats`, `usage`, `portal`, `addons`, `credit-packs`, `webhooks`, `api-keys`, `invoices`, `transactions`, `promo-codes`, `plan-groups`, `payments`, `payouts`, `test-clock`, `quota`.
 
 See [references/commands.md](references/commands.md) for full details.
 
@@ -85,13 +92,13 @@ See [references/templates.md](references/templates.md) for details on each templ
 
 ## Key Gotchas
 
-1. **`commet create` is sandbox-only.** Templates create plans and features in your sandbox organization. If you're logged into production, you need to `commet logout` and log back in to sandbox.
+1. **`commet create` provisions sandbox organizations only.** Templates create plans and features in a sandbox organization -- the CLI only offers your sandbox orgs. No separate login is needed; pick the org (or pass `--org <slug>`).
 
-2. **Commit `.commet/types.d.ts`.** The generated types file should be committed to your repo so the entire team gets autocomplete without each person running `commet pull`.
+2. **One login, one base URL.** The CLI always talks to `https://commet.co`. Sandbox vs live is a property of the organization you link, not of the endpoint or your login: link a sandbox org to work with sandbox data, and `commet link --org <slug>` to switch.
 
-3. **Two environments, two logins.** Sandbox (`sandbox.commet.co`) and Production (`commet.co`) are isolated. Switch by logging out and back in.
+3. **Two kinds of auth.** Resource commands and `pull`/`push` call the API with an API key, resolved as: `COMMET_API_KEY` env var -> project key in `.commet/config.json` (auto-generated by `commet link`) -> error. Your `commet login` credentials drive the platform commands: `orgs`, `link`, `listen`, `create`.
 
-4. **Run `commet pull` after dashboard changes.** When you add plans or features in the dashboard, re-run `commet pull` to update the local types file.
+4. **Sync in both directions.** After dashboard changes, re-run `commet pull` to update `commet.config.ts`. After local edits to `commet.config.ts`, run `commet push`. Both show a diff and support `--dry-run`.
 
 ## When to Load References
 

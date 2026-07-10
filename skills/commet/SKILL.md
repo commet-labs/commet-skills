@@ -32,7 +32,7 @@ Commet is an all-in-one billing and payments platform. Merchant of Record handli
 | `@commet/next` | Next.js helpers - webhook handler, customer portal, pricing markdown | `npm i @commet/next` |
 | `@commet/ai-sdk` | Vercel AI SDK middleware - automatic AI token usage billing | `npm i @commet/ai-sdk` |
 | `@commet/better-auth` | Better Auth plugin - auto customer sync, auth-scoped billing | `npm i @commet/better-auth` |
-| `@commet/cli` | CLI - login, link, pull types, scaffold projects from templates | `npm i -g @commet/cli` |
+| `commet` | CLI - login, link, config push/pull, webhook forwarding, scaffold projects from templates | `npm install -g commet` |
 
 ## Quick Start
 
@@ -41,15 +41,14 @@ import { Commet } from "@commet/node";
 
 const commet = new Commet({
   apiKey: process.env.COMMET_API_KEY!, // ck_xxx format
-  environment: "production", // "sandbox" | "production"
 });
 ```
 
-Sandbox: `https://sandbox.commet.co`. Production: `https://commet.co`.
+One URL, one key: the organization behind the API key decides sandbox vs live. A sandbox organization's key only touches sandbox data; a live organization's key touches live data. There is no `environment` option.
 
 ## Integration Workflow
 
-1. **Setup**: `commet login` -> `commet link` -> `commet pull` (generates `.commet/types.d.ts` for autocomplete)
+1. **Setup**: `commet login` -> `commet link` -> `commet pull` (syncs your billing config into `commet.config.ts`)
 2. **Create customer**: On user signup, create Commet customer with `id` = your user ID
 3. **Create subscription**: Call `subscriptions.create()` -> redirect to `checkoutUrl`
 4. **Check state**: Query `subscriptions.getActive()` to check subscription status (preferred over webhooks)
@@ -129,7 +128,6 @@ try {
 ### Environment variables
 
 ```env
-COMMET_API_KEY=ck_xxx           # API key from dashboard
-COMMET_ENVIRONMENT=sandbox      # sandbox | production
+COMMET_API_KEY=ck_xxx           # API key from dashboard - the key's organization decides sandbox vs live
 COMMET_WEBHOOK_SECRET=whsec_xxx # Optional - webhook secret for signature verification
 ```

@@ -86,7 +86,6 @@ import { auth } from "@/lib/auth";
 
 export const GET = CustomerPortal({
   apiKey: process.env.COMMET_API_KEY!,
-  environment: "production",
   getCustomerId: async (req) => {
     const session = await auth.api.getSession({ headers: req.headers });
     return session?.user.id ?? null;
@@ -132,7 +131,7 @@ export const GET = PricingMarkdown({
 import { Commet } from "@commet/node";
 import { redirect } from "next/navigation";
 
-const commet = new Commet({ apiKey: process.env.COMMET_API_KEY!, environment: "production" });
+const commet = new Commet({ apiKey: process.env.COMMET_API_KEY! });
 
 export async function createCheckout(planCode: string) {
   const user = await getUser();
