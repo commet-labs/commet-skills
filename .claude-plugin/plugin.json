@@ -7,7 +7,7 @@
     "url": "https://commet.co"
   },
   "homepage": "https://commet.co",
-  "repository": "https://github.com/commet-labs/commet-skills",
+  "repository": "https://github.com/commet-labs/skills",
   "license": "MIT",
   "keywords": ["billing", "payments", "subscriptions", "usage", "seats", "saas", "merchant-of-record"]
 }

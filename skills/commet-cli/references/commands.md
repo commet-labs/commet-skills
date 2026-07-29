@@ -90,7 +90,7 @@ Forward webhook events from Commet to your local server in real time. Opens a pe
 ```bash
 commet listen 3000                          # Forward to http://localhost:3000/
 commet listen localhost:3000/webhooks        # Forward to a specific path
-commet listen 3000 --events invoice.paid     # Only forward invoice.paid events
+commet listen 3000 --events payment.received # Only forward successful payments
 ```
 
 **Options:**
@@ -109,7 +109,7 @@ Every SDK resource is available as a CLI command: `commet <resource> <action> [f
 | `subscriptions` | `create`, `get-active`, `cancel`, `uncancel`, `reactivate`, `create-recovery-link`, `update-payment-method`, `change-plan`, `preview-change`, `list`, `activate-addon`, `deactivate-addon`, `adjust-balance`, `topup-balance`, `purchase-credits` |
 | `plans` | `list`, `get`, `create`, `update`, `delete`, `set-visibility`, `add-feature`, `update-feature`, `remove-feature`, `add-price`, `update-price`, `delete-price`, `set-default-price`, `set-regional-prices`, `delete-regional-prices` |
 | `features` | `list`, `get`, `create`, `update`, `delete` |
-| `feature-access` | `list`, `get`, `can-use` |
+| `feature-access` | `list`, `get` |
 | `seats` | `add`, `remove`, `set`, `set-all`, `get-balance`, `get-all-balances` |
 | `usage` | `track`, `check` |
 | `portal` | `get-url` |
@@ -119,7 +119,9 @@ Every SDK resource is available as a CLI command: `commet <resource> <action> [f
 | `api-keys` | `list`, `create`, `delete` |
 | `invoices` | `list`, `get`, `create-adjustment`, `get-download-url`, `send`, `update-status` |
 | `transactions` | `list`, `get`, `refund`, `retry` |
+| `offers` | `list`, `get`, `create`, `update`, `delete` |
 | `promo-codes` | `list`, `get`, `create`, `update` |
+| `pricing` | `list-market-groups`, `get-market-group`, `create-market-group`, `update-market-group`, `delete-market-group` |
 | `plan-groups` | `list`, `get`, `create`, `update`, `delete`, `add-plan`, `remove-plan`, `reorder-plans` |
 | `payments` | `create`, `charge`, `get`, `list`, `cancel` |
 | `payouts` | `request`, `add-bank-account`, `complete-verification` |
@@ -131,7 +133,11 @@ Every SDK resource is available as a CLI command: `commet <resource> <action> [f
 ```bash
 commet customers create --email jane@acme.com --id user_123
 commet subscriptions get-active --customer-id user_123
-commet usage track --feature api_calls --customer-id user_123 --value 5
+commet usage track --feature-code api_calls --customer-id user_123 --value 5 --event-id request_123
+commet usage check --feature-code api_calls --customer-id user_123 --quantity 1
+commet offers create --name "Launch" --purpose promotional --plan-price-ids '["pp_monthly"]' --phases '[{"type":"percentage","percentage":2500,"durationCycles":3}]'
+commet promo-codes create --code LAUNCH25 --offer-id ofr_launch
+commet pricing create-market-group --name "Southern Cone" --country-codes '["AR","BO","PY","UY"]'
 commet plans list --output agent
 ```
 

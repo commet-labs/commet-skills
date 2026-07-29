@@ -1,96 +1,27 @@
 ---
 name: billing-behaviors
-description: Commet behavior rules and business logic. Use when implementing billing features, subscription changes, plan changes, proration, pricing, credits, balance, intro offers, or any billing edge case. Contains detailed rules for how changes affect customers.
+description: Verified Commet behavior rules for subscriptions, plan changes, invoicing, dunning, usage, credits, balances, seats, add-ons, market pricing, Offers, and billing edge cases.
 license: MIT
 metadata:
   author: commet
   version: "1.0.0"
   homepage: https://commet.co
-  source: https://github.com/commet-labs/commet-skills
-references:
-  - references/subscription-changes.md
-  - references/pricing-changes.md
-  - references/feature-changes.md
-  - references/plan-management.md
-  - references/intro-offer.md
-  - references/consumption-models.md
-  - references/edge-cases.md
-  - references/domain-billing-engine.md
-  - references/domain-subscriptions.md
-  - references/domain-plans.md
-  - references/domain-features.md
-  - references/domain-usage.md
-  - references/domain-seats.md
-  - references/domain-customers.md
-  - references/domain-plan-groups.md
-  - references/domain-addons.md
-  - references/domain-ai-costs.md
-  - references/domain-promo-codes.md
+  source: https://github.com/commet-labs/skills
 ---
 
 # Billing Behavior Rules
 
-This skill contains the detailed business behavior rules for Commet. Load the specific files you need based on the task.
+This skill contains verified behavior rules for the current Commet product. Load only the reference relevant to the task.
 
-## Core Principle
+## Verification principle
 
-Commet does what's fair by default:
+Do not derive behavior from a generic fairness slogan. Scheduling, billing, discounts, and resets are explicit per operation.
 
-| Change Type | When Applied |
-|-------------|--------------|
-| Benefits customer | Immediately |
-| Hurts customer | At renewal |
+## References
 
-**Benefits customer:** More limits (API calls, storage), adding features, more included seats.
-**Hurts customer:** Price increase, reduced limits, removing features, fewer included seats.
+- [subscriptions-and-plan-changes.md](references/subscriptions-and-plan-changes.md) — lifecycle, access, intro eligibility, changes, cancellation, and reactivation.
+- [billing-and-dunning.md](references/billing-and-dunning.md) — billing periods, invoice composition, discounts, and retry schedule.
+- [usage-balances-and-seats.md](references/usage-balances-and-seats.md) — consumption models, resets, packs, top-ups, quota, and seat true-up.
+- [catalog-pricing-and-offers.md](references/catalog-pricing-and-offers.md) — plans, currency pricing, Markets, selectable variants, Offers, promo codes, add-ons, and archive behavior.
 
-## Actors
-
-| Actor | Where They Act | Examples |
-|-------|----------------|----------|
-| Founder | Dashboard | Change prices, edit features, deprecate plans |
-| Customer | Customer Portal | Upgrade, downgrade, change billing interval |
-| System | Automatic | Trial end, payment failure, billing |
-
-## Decision Tree
-
-```
-Who makes the change?
-│
-├─ FOUNDER (Dashboard)
-│   ├─ Benefits customer? → IMMEDIATE
-│   └─ Hurts customer? → AT RENEWAL
-│   └─ Delete plan/customer? → See references/plan-management.md
-│
-└─ CUSTOMER (Portal)
-    ├─ Upgrade (more expensive)? → IMMEDIATE + proration
-    └─ Downgrade (cheaper)? → AT RENEWAL
-```
-
-## Detailed Rules
-
-Each file covers a specific aspect of billing behavior:
-
-- [references/subscription-changes.md](references/subscription-changes.md) - Upgrades, downgrades, interval changes, proration by consumption model
-- [references/pricing-changes.md](references/pricing-changes.md) - Base price, overage, and seat price changes
-- [references/feature-changes.md](references/feature-changes.md) - Limit increases/decreases, boolean features, included seats
-- [references/plan-management.md](references/plan-management.md) - Deprecating and deleting plans, deleting customers
-- [references/intro-offer.md](references/intro-offer.md) - Introductory offer eligibility, components, plan change behavior
-- [references/consumption-models.md](references/consumption-models.md) - Credits and balance proration, plan changes, cancellation, purchases
-- [references/edge-cases.md](references/edge-cases.md) - Trial pricing, reactivations, payment failures, exhaustion, currency at checkout
-
-## Domain Reference
-
-Module-specific knowledge for understanding the codebase:
-
-- [references/domain-billing-engine.md](references/domain-billing-engine.md) - Billing engine orchestration, calculator resolution, processing flow, invoice line types, monthly resets
-- [references/domain-subscriptions.md](references/domain-subscriptions.md) - Subscription states, creation flow, billing period, currency, trials, pause, cancellation
-- [references/domain-plans.md](references/domain-plans.md) - Plan structure, free vs paid, PlanPrice, PlanFeature, introductory offers, regional pricing
-- [references/domain-features.md](references/domain-features.md) - Feature types (boolean, metered, seats), feature codes as SDK identifiers. Seats are features with type="seats"; featureCode identifies the seat variant
-- [references/domain-usage.md](references/domain-usage.md) - Consumption models (metered, credits, balance), usage events, AI token tracking, subscription balance
-- [references/domain-seats.md](references/domain-seats.md) - Seat billing (advance + true-up), proration, seats as features (type="seats"), SDK integration
-- [references/domain-customers.md](references/domain-customers.md) - Customer fields, external ID, address, customer credits, business flow
-- [references/domain-plan-groups.md](references/domain-plan-groups.md) - Plan grouping for upgrades/downgrades, business rules
-- [references/domain-addons.md](references/domain-addons.md) - Addon system, activation/deactivation, billing, consumption model compatibility
-- [references/domain-ai-costs.md](references/domain-ai-costs.md) - AI model catalog, token cost tracking, margin pricing, balance deductions
-- [references/domain-promo-codes.md](references/domain-promo-codes.md) - Promo code system, validation rules, checkout flow, mutual exclusivity with intro offers
+When a live API or SDK detail matters, consult https://commet.co/docs and the generated SDK types. Do not recreate removed v7 methods or response wrappers.

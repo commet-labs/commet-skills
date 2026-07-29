@@ -6,18 +6,7 @@ metadata:
   author: commet
   version: "1.0.0"
   homepage: https://commet.co
-  source: https://github.com/commet-labs/commet-skills
-inputs:
-  COMMET_API_KEY:
-    required: true
-  COMMET_WEBHOOK_SECRET:
-    required: false
-references:
-  - references/sdk.md
-  - references/nextjs.md
-  - references/ai-sdk.md
-  - references/better-auth.md
-  - references/billing-concepts.md
+  source: https://github.com/commet-labs/skills
 ---
 
 # Commet Integration
@@ -53,7 +42,7 @@ One URL, one key: the organization behind the API key decides sandbox vs live. A
 3. **Create subscription**: Call `subscriptions.create()` -> redirect to `checkoutUrl`
 4. **Check state**: Query `subscriptions.getActive()` to check subscription status (preferred over webhooks)
 5. **Track usage**: `usage.track()` for metered features, `seats.add/remove/set()` for seats
-6. **Feature gating**: `featureAccess.get()`, `featureAccess.canUse()`, `featureAccess.list()`
+6. **Feature gating**: `featureAccess.get()` / `featureAccess.list()` for current state, `usage.check()` before prospective consumption
 7. **Customer portal**: `portal.getUrl()` -> redirect for self-service billing management
 
 ## SDK Reference
@@ -84,12 +73,15 @@ Always query subscription/feature state directly with the SDK instead of relying
 
 ```typescript
 // Recommended: query state directly
-const { data: sub } = await commet.subscriptions.getActive({ customerId: "user_123" });
+const sub = await commet.subscriptions.getActive({ customerId: "user_123" });
 if (sub?.status === "active") { /* grant access */ }
 
 // Recommended: feature gating
-const { data } = await commet.featureAccess.get({ code: "advanced_analytics", customerId: "user_123" });
-if (!data?.allowed) { /* show upgrade prompt */ }
+const access = await commet.featureAccess.get({
+  code: "advanced_analytics",
+  customerId: "user_123",
+});
+if (!access.allowed) { /* show upgrade prompt */ }
 ```
 
 ### Customer identification
@@ -103,8 +95,10 @@ All POST requests auto-generate idempotency keys. For critical operations, pass 
 ```typescript
 await commet.usage.track({
   customerId: "user_123",
-  feature: "api_calls",
-  idempotencyKey: `req_${requestId}`,
+  featureCode: "api_calls",
+  eventId: `usage_${requestId}`,
+}, {
+  idempotencyKey: `request_${requestId}`,
 });
 ```
 

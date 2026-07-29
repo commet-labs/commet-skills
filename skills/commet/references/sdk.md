@@ -37,13 +37,16 @@ await commet.customers.create({
 await commet.customers.createBatch({ customers: CreateCustomerParams[] });
 
 // Get by Commet ID
-await commet.customers.get("cus_xxx");
+await commet.customers.get({ id: "cus_xxx" });
 
 // Update
-await commet.customers.update({ customerId: "cus_xxx", email?: string, ... });
+await commet.customers.update({ id: "cus_xxx", email: "new@example.com" });
 
 // List with filters
-await commet.customers.list({ customerId?, isActive?, search?, limit?, cursor? });
+const { data, hasMore, nextCursor } = await commet.customers.list({
+  externalId: "user_123",
+  limit: 25,
+});
 
 ```
 
@@ -56,20 +59,20 @@ const { data: plans } = await commet.plans.list();
 // Include private plans
 const { data: all } = await commet.plans.list({ includePrivate: true });
 
-// Get plan by code
-const { data: plan } = await commet.plans.get("pro");
-// plan.prices: [{ billingInterval, price, isDefault }]
-// plan.features: [{ code, name, type, includedAmount, overageUnitPrice, ... }]
+// Get plan by public ID
+const plan = await commet.plans.get({ id: "pln_xxx" });
+// plan.prices include public IDs, market prices, and automatic offer IDs
+// plan.features use typed feature and overage fields
 ```
 
 **Plan types:**
 ```typescript
 interface Plan {
-  id: PlanID;           // plan_xxx
+  id: PlanID;           // pln_xxx
   code: string;         // "pro", "enterprise"
   name: string;
-  prices: PlanPrice[];  // { billingInterval, price (cents), isDefault }
-  features: PlanFeature[]; // { code, name, type, includedAmount, overageUnitPrice, ... }
+  prices: PlanPrice[];
+  features: PlanFeature[];
 }
 ```
 
@@ -79,18 +82,19 @@ Each customer can only have ONE active subscription.
 
 ```typescript
 // Create subscription -> returns checkoutUrl for payment
-const { data: sub } = await commet.subscriptions.create({
+const sub = await commet.subscriptions.create({
   customerId: "user_123",     // your ID or cus_xxx
-  planCode: "pro",            // or planId: "plan_xxx"
-  billingInterval?: "monthly" | "quarterly" | "yearly",
-  initialSeats?: { editor: 5 },
-  skipTrial?: boolean,
-  successUrl?: string,        // Redirect after checkout
+  planCode: "pro",            // or planId: "pln_xxx"
+  billingInterval: "monthly",
+  priceId: "pp_xxx",          // optional explicit base price or variant
+  offerId: "ofr_xxx",         // optional Promotional Offer
+  initialSeats: { editor: 5 },
+  successUrl: "https://app.example.com/billing",
 });
 // sub.checkoutUrl -> redirect user here for payment
 
 // Get active subscription
-const { data: active } = await commet.subscriptions.getActive({ customerId: "user_123" });
+const active = await commet.subscriptions.getActive({ customerId: "user_123" });
 // active.status: "active" | "trialing" | "pending_payment" | ...
 // active.plan: { name, basePrice, billingInterval }
 // active.features: [{ code, name, type, usage: { current, included, overage } }]
@@ -104,7 +108,7 @@ await commet.subscriptions.cancel({
 });
 ```
 
-**Subscription statuses:** `draft`, `pending_payment`, `trialing`, `active`, `paused`, `past_due`, `canceled`, `expired`.
+**Subscription statuses:** `draft`, `pending_payment`, `trialing`, `active`, `past_due`, `canceled`.
 
 ### commet.usage
 
@@ -114,22 +118,21 @@ Track consumption events for metered features. Two modes: value-based (standard)
 // Track value-based event (standard metered usage)
 await commet.usage.track({
   customerId: "user_123",     // your ID or cus_xxx
-  feature: "api_calls",       // feature.code from your plan
-  value?: number,             // default: 1
-  idempotencyKey?: string,    // prevent duplicate billing
-  timestamp?: string,         // ISO 8601, default: now
-  properties?: Record<string, string>, // metadata
-});
+  featureCode: "api_calls",   // feature.code from your plan
+  value: 1,
+  eventId: "usage_xxx",       // stable logical event identity
+  properties: [{ property: "route", value: "/reports" }],
+}, { idempotencyKey: "request_xxx" });
 
 // Track AI model token usage (balance model with AI pricing)
 await commet.usage.track({
   customerId: "user_123",
-  feature: "ai_generation",
+  featureCode: "ai_generation",
   model: "anthropic/claude-3-opus",  // provider/modelId
   inputTokens: 1000,
   outputTokens: 500,
-  cacheReadTokens?: 100,
-  cacheWriteTokens?: 50,
+  cacheReadTokens: 100,
+  cacheWriteTokens: 50,
 });
 
 ```
@@ -154,11 +157,11 @@ await commet.seats.set({ customerId: "user_123", featureCode: "editor", count: 1
 await commet.seats.setAll({ customerId: "user_123", seats: { editor: 10, viewer: 50 } });
 
 // Get balance
-const { data } = await commet.seats.getBalance({ customerId: "user_123", featureCode: "editor" });
-// data.current: number, data.asOf: string
+const balance = await commet.seats.getBalance({ customerId: "user_123", featureCode: "editor" });
+// balance.current: number, balance.asOf: string
 
 // Get all balances
-const { data: all } = await commet.seats.getAllBalances({ customerId: "user_123" });
+const all = await commet.seats.getAllBalances({ customerId: "user_123" });
 // { editor: { current: 10, asOf: "..." }, viewer: { current: 50, asOf: "..." } }
 ```
 
@@ -168,12 +171,19 @@ Check a customer's feature access without parsing subscription data.
 
 ```typescript
 // Get detailed feature info
-const { data } = await commet.featureAccess.get({ code: "team_members", customerId: "user_123" });
-// data: { code, name, type, allowed, current, included, remaining, overage, unlimited, ... }
+const access = await commet.featureAccess.get({
+  code: "team_members",
+  customerId: "user_123",
+});
+// access is discriminated by type and consumption model
 
-// Check if can use one more unit (metered/seats)
-const { data } = await commet.featureAccess.canUse({ code: "team_members", customerId: "user_123" });
-// data: { allowed: boolean, willBeCharged: boolean, reason?: string }
+// Check a prospective consumption
+const check = await commet.usage.check({
+  featureCode: "api_calls",
+  customerId: "user_123",
+  quantity: 1,
+});
+// check.allowed plus model-specific cost and remaining fields
 
 // List all features for a customer
 const { data } = await commet.featureAccess.list({ customerId: "user_123" });
@@ -193,15 +203,12 @@ Generate customer self-service portal URLs.
 
 ```typescript
 // By customerId
-const { data } = await commet.portal.getUrl({ customerId: "user_123" });
+const portal = await commet.portal.getUrl({ customerId: "user_123" });
 
 // By email
-const { data } = await commet.portal.getUrl({ email: "user@example.com" });
+const portalByEmail = await commet.portal.getUrl({ email: "user@example.com" });
 
-// By customerId
-const { data } = await commet.portal.getUrl({ customerId: "cus_xxx" });
-
-// data.portalUrl -> redirect user here
+// portal.portalUrl -> redirect user here
 ```
 
 ### commet.creditPacks
@@ -210,6 +217,69 @@ const { data } = await commet.portal.getUrl({ customerId: "cus_xxx" });
 const { data: packs } = await commet.creditPacks.list();
 // [{ id, name, description, credits, price, currency }]
 ```
+
+### commet.pricing and selectable prices
+
+Market groups map reusable country sets to price overrides. Currency pricing and market pricing coexist.
+
+```typescript
+const market = await commet.pricing.createMarketGroup({
+  name: "South Asia",
+  countryCodes: ["IN", "PK", "BD", "LK"],
+});
+
+const basePrice = await commet.plans.addPrice({
+  id: "pln_xxx",
+  billingInterval: "monthly",
+  price: 1000,
+  isDefault: true,
+  marketPrices: [
+    { marketGroupId: market.id, currency: "usd", price: 800 },
+  ],
+});
+
+const variant = await commet.plans.addPrice({
+  id: "pln_xxx",
+  billingInterval: "monthly",
+  inheritsFromPriceId: basePrice.id,
+  metadata: { name: "Experiment B" },
+  marketPrices: [
+    { marketGroupId: market.id, currency: "usd", price: 600 },
+  ],
+});
+
+await commet.subscriptions.create({
+  customerId: "user_123",
+  planId: "pln_xxx",
+  priceId: variant.id,
+});
+```
+
+Omit `priceId` to use the default base price. A variant inherits its base price in every market it does not override. A subscription keeps the selected price identity; renewals use that price's current catalog value. Archiving hides a price from new selection without breaking subscriptions already bound to it.
+
+### commet.offers
+
+Introductory and Promotional Offers are first-class resources. One Introductory Offer can apply automatically to each plan price. Promotional Offers are selected explicitly.
+
+```typescript
+const offer = await commet.offers.create({
+  name: "Launch experiment B",
+  purpose: "promotional",
+  planPriceIds: [basePrice.id],
+  phases: [
+    { type: "percentage", durationCycles: 3, percentage: 2500 },
+  ],
+  metadata: { experiment: "launch", variant: "B" },
+});
+
+await commet.subscriptions.create({
+  customerId: "user_123",
+  planId: "pln_xxx",
+  offerId: offer.id,
+});
+```
+
+Commet applies a price's active automatic Introductory Offer when no override is supplied. Passing a Promotional `offerId` overrides it. Experiment assignment belongs to the caller.
 
 ### commet.webhooks
 
@@ -232,22 +302,18 @@ const payload = commet.webhooks.verifyAndParse({
 // payload: { event, timestamp, organizationId, data } | null
 ```
 
-**Webhook events:** `subscription.created`, `subscription.activated`, `subscription.canceled`, `subscription.updated`.
+Use `webhooks.on(event, handler)` for typed dispatch. The generated event catalog includes subscription, trial, checkout, payment, invoice, customer, usage, quota, seat, add-on, and payout events.
 
 ## Response Format
 
-All methods return `ApiResponse<T>`:
+Successful singular operations return the resource or action result directly. List operations use one pagination envelope:
 
 ```typescript
-interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  message?: string;
-  hasMore?: boolean;    // Pagination
-  nextCursor?: string;  // Pagination
-}
+const customer = await commet.customers.get({ id: "cus_xxx" });
+const { data, hasMore, nextCursor } = await commet.customers.list();
 ```
+
+Failures throw typed SDK errors. Do not look for `success` or `error` on successful values.
 
 ## CLI
 

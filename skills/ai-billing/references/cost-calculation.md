@@ -139,22 +139,14 @@ This means a customer on a BRL subscription pays the same token cost in rate sca
 If you are not using the Vercel AI SDK, you can report usage directly:
 
 ```typescript
-// POST /api/usage/events
-const response = await fetch("https://api.commet.co/api/usage/events", {
-  method: "POST",
-  headers: {
-    "Authorization": `Bearer ${process.env.COMMET_API_KEY}`,
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    feature: "ai_generation",
-    model: "anthropic/claude-sonnet-4-20250514",
-    inputTokens: 1000,
-    outputTokens: 500,
-    cacheReadTokens: 100,
-    cacheWriteTokens: 50,
-    customerId: "cus_abc123",
-  }),
+await commet.usage.track({
+  featureCode: "ai_generation",
+  model: "anthropic/claude-sonnet-4-20250514",
+  inputTokens: 1000,
+  outputTokens: 500,
+  cacheReadTokens: 100,
+  cacheWriteTokens: 50,
+  customerId: "cus_abc123",
 });
 ```
 
