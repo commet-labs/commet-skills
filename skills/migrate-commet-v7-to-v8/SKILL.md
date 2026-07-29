@@ -12,7 +12,7 @@ metadata:
 # Migrate Commet SDK v7 to v8
 
 Use the v8 changelog as the detailed source of truth:
-https://commet.co/changelog/api-2026-07-24-and-sdks-v8
+https://commet.co/changelog/offers-and-pricing
 
 ## 1. Detect the integration
 
