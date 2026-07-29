@@ -6,15 +6,7 @@ metadata:
   author: commet
   version: "1.0.0"
   homepage: https://commet.co
-  source: https://github.com/commet-labs/commet-skills
-inputs:
-  - name: COMMET_API_KEY
-    description: Commet API key (ck_xxx format)
-    required: true
-references:
-  - references/tracked-middleware.md
-  - references/cost-calculation.md
-  - references/balance-model.md
+  source: https://github.com/commet-labs/skills
 ---
 
 # AI Billing

@@ -6,11 +6,11 @@ Instead of syncing state via webhooks, query the SDK directly when you need to k
 
 ```typescript
 // Check subscription status on any page/action
-const { data: sub } = await commet.subscriptions.getActive({ customerId: user.id });
+const sub = await commet.subscriptions.getActive({ customerId: user.id });
 if (sub?.status === "active" || sub?.status === "trialing") { /* has access */ }
 
 // Check feature access
-const { data } = await commet.featureAccess.get({ code: "api_calls", customerId: user.id });
+const access = await commet.featureAccess.get({ code: "api_calls", customerId: user.id });
 
 // List all features
 const { data: features } = await commet.featureAccess.list({ customerId: user.id });
@@ -138,16 +138,16 @@ export async function createCheckout(planCode: string) {
   if (!user) redirect("/sign-in");
 
   // Ensure customer exists
-  const customers = await commet.customers.list({ customerId: user.id, limit: 1 });
-  if (!customers.data?.length) {
+  const customers = await commet.customers.list({ externalId: user.id, limit: 1 });
+  if (customers.data.length === 0) {
     await commet.customers.create({ id: user.id, email: user.email });
   }
 
   // Check existing subscription
   const existing = await commet.subscriptions.getActive({ customerId: user.id });
-  if (existing.data?.status === "active") redirect("/dashboard/billing?error=already_subscribed");
-  if (existing.data?.status === "pending_payment" && existing.data.checkoutUrl) {
-    redirect(existing.data.checkoutUrl);
+  if (existing?.status === "active") redirect("/dashboard/billing?error=already_subscribed");
+  if (existing?.status === "pending_payment" && existing.checkoutUrl) {
+    redirect(existing.checkoutUrl);
   }
 
   // Create subscription -> get checkout URL
@@ -157,8 +157,8 @@ export async function createCheckout(planCode: string) {
     successUrl: `${process.env.NEXT_PUBLIC_URL}/dashboard`,
   });
 
-  if (!result.data?.checkoutUrl) throw new Error("Failed to create checkout");
-  redirect(result.data.checkoutUrl);
+  if (!result.checkoutUrl) throw new Error("Failed to create checkout");
+  redirect(result.checkoutUrl);
 }
 ```
 
@@ -170,7 +170,6 @@ import { unstable_cache } from "next/cache";
 const getCachedPlans = unstable_cache(
   async () => {
     const result = await commet.plans.list();
-    if (!result.success || !result.data) throw new Error("Failed to load plans");
     return result.data;
   },
   ["plans"],
@@ -183,9 +182,9 @@ const getCachedPlans = unstable_cache(
 ```typescript
 export default async function Page() {
   const user = await getUser();
-  const { data } = await commet.featureAccess.get({ code: "advanced_analytics", customerId: user.id });
+  const access = await commet.featureAccess.get({ code: "advanced_analytics", customerId: user.id });
 
-  if (!data?.allowed) {
+  if (!access.allowed) {
     return <UpgradePrompt feature="Advanced Analytics" />;
   }
 

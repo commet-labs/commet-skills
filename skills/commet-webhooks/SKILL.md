@@ -6,15 +6,7 @@ metadata:
   author: commet
   version: "1.0.0"
   homepage: https://commet.co
-  source: https://github.com/commet-labs/commet-skills
-inputs:
-  - name: COMMET_WEBHOOK_SECRET
-    description: Webhook signing secret (whsec_xxx). Found in Commet dashboard under Webhooks.
-    required: true
-references:
-  - references/setup.md
-  - references/events.md
-  - references/framework-handlers.md
+  source: https://github.com/commet-labs/skills
 ---
 
 # Commet Webhooks
@@ -58,16 +50,17 @@ import { Commet } from "@commet/node";
 const commet = new Commet({ apiKey: process.env.COMMET_API_KEY! });
 
 // Check subscription status -- do this, not webhook state sync
-const { data: sub } = await commet.subscriptions.getActive({ customerId: "user_123" });
+const sub = await commet.subscriptions.getActive({ customerId: "user_123" });
 if (sub?.status === "active" || sub?.status === "trialing") {
   // grant access
 }
 
 // Check feature access
-const { data } = await commet.featureAccess.get({
+const access = await commet.featureAccess.get({
   code: "advanced_analytics",
   customerId: "user_123",
 });
+if (access.allowed) { /* grant access */ }
 ```
 
 ## Event Types

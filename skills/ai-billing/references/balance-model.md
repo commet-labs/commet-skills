@@ -42,10 +42,13 @@ Use this when you want hard spending limits. The customer cannot exceed their in
 
 ```typescript
 // Check balance before making the AI call
-const { data: sub } = await commet.subscriptions.getActive({ customerId });
-const balanceFeature = sub?.features?.find((f) => f.code === "ai_generation");
+const availability = await commet.usage.check({
+  customerId,
+  featureCode: "ai_generation",
+  quantity: 1,
+});
 
-if (!balanceFeature || balanceFeature.remaining <= 0) {
+if (!availability.allowed) {
   return new Response("Insufficient balance. Please top up.", { status: 402 });
 }
 
@@ -89,9 +92,8 @@ At renewal:    currentBalance = 100000 ($10.00, reset to includedBalance)
 |--------|-----------------|
 | **Upgrade** | Reset to new plan's `includedBalance` immediately |
 | **Downgrade** | Reset to new plan's `includedBalance` at renewal |
-| **Cancellation** | Balance is lost |
-| **Reactivation** | Reset to `includedBalance` |
-| **Pause** | Balance is lost; on resume, reset to `includedBalance` |
+| **Cancellation** | No special balance mutation |
+| **Reactivation** | Existing initialized balance is not automatically reset |
 
 Top-ups are part of the current balance and follow the same rules. They are not tracked separately like purchased credits in the credits model.
 
@@ -153,10 +155,10 @@ The ledger provides a complete audit trail of all balance changes: initial alloc
 
 | Change | New Customers | Existing Customers |
 |--------|---------------|---------------------|
-| Increase (benefits customer) | Immediate | Immediate |
-| Decrease (hurts customer) | Immediate | At renewal |
+| Increase | Used when their balance is initialized | At the next period reset |
+| Decrease | Used when their balance is initialized | At the next period reset |
 
-Increases apply immediately to protect customers from mid-cycle downgrades. Decreases only take effect at renewal to avoid reducing a balance the customer has already been promised.
+Editing `includedBalance` does not rewrite a balance already granted for the current period. A successful immediate plan change is different: fulfillment resets the allocation to the new plan after the charge succeeds.
 
 ## Pricing Configuration
 

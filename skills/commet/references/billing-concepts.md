@@ -25,7 +25,7 @@ Plan (pricing template)
 
 The `feature.code` in the dashboard IS the identifier used in the SDK:
 - Dashboard: Feature "API Calls" with code `api_calls`
-- SDK: `commet.usage.track({ feature: "api_calls", value: 1 })`
+- SDK: `commet.usage.track({ customerId, featureCode: "api_calls", value: 1 })`
 
 ## Charging Model
 
@@ -58,8 +58,8 @@ Create subscription
 
 Active subscription
 ├── Billing cron runs monthly → Generates invoices
-├── Upgrade (more expensive) → Immediate + proration
-├── Downgrade (cheaper) → Scheduled at renewal
+├── Higher sortOrder in the same plan group → Immediate + proration
+├── Lower sortOrder in the same plan group → Scheduled at renewal
 └── Cancel → At period end (or immediate)
 ```
 
@@ -71,10 +71,8 @@ Active subscription
 | `pending_payment` | Awaiting first payment (checkoutUrl available) |
 | `trialing` | In trial period |
 | `active` | Paying and active |
-| `paused` | Temporarily paused |
-| `past_due` | Payment failed, grace period |
-| `canceled` | Canceled (at period end or immediate) |
-| `expired` | Subscription ended |
+| `past_due` | Renewal payment failed; dunning is active |
+| `canceled` | Ended by the customer, dunning, or an operator |
 
 ## Proration on Plan Changes
 
@@ -89,11 +87,10 @@ Active subscription
 
 ## Introductory Offers
 
-Welcome discounts for new customers (no previous subscriptions):
+Automatic discounts attached to plan prices. Current eligibility excludes customers with an `active` or `past_due` subscription in the organization:
 - Percentage or fixed amount discount
 - Duration in billing cycles
 - Lost when changing plans
-- One per customer lifetime
 
 ## Regional Pricing
 
@@ -105,7 +102,7 @@ Purchasable feature extensions with their own pricing. Each addon links to one f
 
 ## Promo Codes
 
-Discount codes (percentage or fixed amount) applied at checkout. Mutually exclusive with intro offers. Supports duration cycles, global redemption caps, plan restrictions, and expiration. One redemption per customer per code.
+Promo codes distribute Promotional Offers at checkout. They are mutually exclusive with an eligible automatic Introductory Offer and with a direct `offerId`. Validation covers the code status, time window, plan and interval eligibility, redemption limits, and one redemption per customer per code.
 
 ## AI Token Billing
 
