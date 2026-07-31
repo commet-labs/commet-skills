@@ -121,7 +121,7 @@ Every SDK resource is available as a CLI command: `commet <resource> <action> [f
 | `transactions` | `list`, `get`, `refund`, `retry` |
 | `offers` | `list`, `get`, `create`, `update`, `delete` |
 | `promo-codes` | `list`, `get`, `create`, `update` |
-| `pricing` | `list-market-groups`, `get-market-group`, `create-market-group`, `update-market-group`, `delete-market-group` |
+| `markets` | `list`, `get`, `create`, `update`, `delete` |
 | `plan-groups` | `list`, `get`, `create`, `update`, `delete`, `add-plan`, `remove-plan`, `reorder-plans` |
 | `payments` | `create`, `charge`, `get`, `list`, `cancel` |
 | `payouts` | `request`, `add-bank-account`, `complete-verification` |
@@ -135,9 +135,9 @@ commet customers create --email jane@acme.com --id user_123
 commet subscriptions get-active --customer-id user_123
 commet usage track --feature-code api_calls --customer-id user_123 --value 5 --event-id request_123
 commet usage check --feature-code api_calls --customer-id user_123 --quantity 1
-commet offers create --name "Launch" --purpose promotional --plan-price-ids '["pp_monthly"]' --phases '[{"type":"percentage","percentage":2500,"durationCycles":3}]'
+commet offers create --name "Launch" --phases '[{"type":"percentage","percentage":2500,"durationCycles":3}]'
 commet promo-codes create --code LAUNCH25 --offer-id ofr_launch
-commet pricing create-market-group --name "Southern Cone" --country-codes '["AR","BO","PY","UY"]'
+commet markets create --name "Southern Cone" --country-codes '["AR","BO","PY","UY"]'
 commet plans list --output agent
 ```
 

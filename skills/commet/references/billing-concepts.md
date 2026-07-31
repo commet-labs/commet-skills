@@ -87,14 +87,13 @@ Active subscription
 
 ## Introductory Offers
 
-Automatic discounts attached to plan prices. Current eligibility excludes customers with an `active` or `past_due` subscription in the organization:
-- Percentage or fixed amount discount
-- Duration in billing cycles
-- Lost when changing plans
+An Introductory Offer is an independent Offer attached to one base plan price for automatic eligible-customer selection. It may contain an optional first `free_trial` phase and at most one finite `percentage` or `amount_off` phase.
+
+Current eligibility excludes customers with an `active` or `past_due` subscription in the organization. Other historical statuses do not create a lifetime ban.
 
 ## Regional Pricing
 
-Plans define canonical USD prices. Optional local currency overrides for: ARS, BRL, CLP, COP, PEN, UYU, PYG, BOB, MXN, CAD, EUR. Currency auto-detected at checkout from billing address. Subscription currency is immutable after first payment.
+Currency Pricing defines explicit presentment values. Markets group non-overlapping countries and map them to price and currency overrides. Checkout resolves the Market from the request country; Sandbox checkout can override Country for testing, while live ignores that override. Subscription currency is immutable after first payment.
 
 ## Addons
 
@@ -102,7 +101,7 @@ Purchasable feature extensions with their own pricing. Each addon links to one f
 
 ## Promo Codes
 
-Promo codes distribute Promotional Offers at checkout. They are mutually exclusive with an eligible automatic Introductory Offer and with a direct `offerId`. Validation covers the code status, time window, plan and interval eligibility, redemption limits, and one redemption per customer per code.
+Promo codes distribute an independent Offer with exactly one `percentage` or `amount_off` phase. They are mutually exclusive with an eligible automatic Introductory Offer and with a direct `offerId`. Validation covers the code status, time window, plan and interval eligibility, redemption limits, and one redemption per customer per code.
 
 ## AI Token Billing
 

@@ -12,9 +12,9 @@ When a trial reaches its first paid invoice, a retryable provider decline enters
 
 ## Introductory Offers
 
-An active automatic Introductory Offer belongs to a plan price. Subscription creation applies it when the customer is eligible and no explicit override is supplied.
+An automatic Introductory Offer is an independent Offer placed on one base plan price. Subscription creation applies it when the customer is eligible and no explicit override is supplied.
 
-Current eligibility excludes customers with an `active` or `past_due` subscription in the organization. A Promotional `offerId` is an explicit override and has its own eligibility. Plan changes clear the existing subscription discount; credit for the old plan uses the effective price actually paid.
+Current eligibility excludes customers with an `active` or `past_due` subscription in the organization. A direct `offerId` is an explicit override. An immediate plan change ends the existing Offer Application and may accept a new `offerId`; a scheduled change does not accept one. Credit for the old plan uses the effective price actually paid.
 
 ## Plan and interval changes
 

@@ -18,6 +18,7 @@ npx skills add commet-labs/skills
 | `commet-webhooks` | Webhook setup — event handling, signature verification, framework handlers |
 | `ai-billing` | AI token billing — tracked() middleware, balance model, cost calculation |
 | `migrate-commet-v7-to-v8` | Repository-aware migration from SDK v7 to the direct-response v8 contract |
+| `migrate-commet-v8-to-v9` | Repository-aware migration to independent Offers and top-level Markets |
 
 ## Install a single skill
 
@@ -25,9 +26,10 @@ npx skills add commet-labs/skills
 npx skills add commet-labs/skills --skill commet
 npx skills add commet-labs/skills --skill ai-billing
 npx skills add commet-labs/skills --skill migrate-commet-v7-to-v8
+npx skills add commet-labs/skills --skill migrate-commet-v8-to-v9
 ```
 
-`commet` follows the current stable contract. Versioned migration skills remain scoped to one major boundary and are linked from the matching API changelog. A future v9 release adds a separate `migrate-commet-v8-to-v9` skill instead of changing the v7-to-v8 workflow.
+`commet` follows the current stable contract. Versioned migration skills remain scoped to one major boundary and are linked from the matching API changelog.
 
 ## Prerequisites
 

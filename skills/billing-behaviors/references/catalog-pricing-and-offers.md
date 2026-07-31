@@ -12,18 +12,18 @@ A subscription persists the selected price identity. Renewal uses that price's c
 
 ## Offers
 
-Introductory and Promotional Offers are first-class resources with phases:
+An Offer is an independent reusable sequence of phases:
 
 - free trial;
 - percentage discount;
 - amount off with explicit currency amounts;
 - fixed price with explicit currency amounts.
 
-One active Introductory Offer can apply automatically to a plan price. Passing a Promotional `offerId` explicitly overrides the automatic Intro. Commet does not assign experiment variants; the caller chooses them.
+The Offer does not contain a purpose or price association. Attach a compatible Offer to one base price for automatic introductory selection, pass `offerId` for direct Promotional selection, or reference a single-discount Offer from a Promo Code. Commet does not assign experiment variants; the caller chooses them.
 
 Accepted offer terms are snapshotted in an Offer Application for billing and audit. Updating or archiving the catalog Offer does not rewrite an existing application. This immutability applies to the accepted offer, not to the selected plan price.
 
-Promo codes reference a Promotional Offer instead of owning separate discount economics. Checkout resolves one active discount source.
+Promo codes reference an Offer instead of owning separate discount economics. A compatible code Offer has exactly one `percentage` or `amount_off` phase. Checkout resolves one active selection source.
 
 ## Add-ons
 

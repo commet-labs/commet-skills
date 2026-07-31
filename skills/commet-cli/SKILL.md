@@ -63,7 +63,7 @@ export default defineConfig({
 | `commet listen <url>` | Forward webhook events to a local server |
 | `commet <resource> <action>` | Resource commands mirroring the SDK (see below) |
 
-Resource commands exist for: `customers`, `subscriptions`, `plans`, `features`, `feature-access`, `seats`, `usage`, `portal`, `addons`, `credit-packs`, `webhooks`, `api-keys`, `invoices`, `transactions`, `offers`, `promo-codes`, `pricing`, `plan-groups`, `payments`, `payouts`, `test-clock`, `quota`.
+Resource commands exist for: `customers`, `subscriptions`, `plans`, `features`, `feature-access`, `seats`, `usage`, `portal`, `addons`, `credit-packs`, `webhooks`, `api-keys`, `invoices`, `transactions`, `offers`, `promo-codes`, `markets`, `plan-groups`, `payments`, `payouts`, `test-clock`, `quota`.
 
 See [references/commands.md](references/commands.md) for full details.
 

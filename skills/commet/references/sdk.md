@@ -87,7 +87,7 @@ const sub = await commet.subscriptions.create({
   planCode: "pro",            // or planId: "pln_xxx"
   billingInterval: "monthly",
   priceId: "pp_xxx",          // optional explicit base price or variant
-  offerId: "ofr_xxx",         // optional Promotional Offer
+  offerId: "ofr_xxx",         // optional direct Offer
   initialSeats: { editor: 5 },
   successUrl: "https://app.example.com/billing",
 });
@@ -218,12 +218,12 @@ const { data: packs } = await commet.creditPacks.list();
 // [{ id, name, description, credits, price, currency }]
 ```
 
-### commet.pricing and selectable prices
+### commet.markets and selectable prices
 
-Market groups map reusable country sets to price overrides. Currency pricing and market pricing coexist.
+Markets map reusable country sets to price overrides. Currency pricing and market pricing coexist.
 
 ```typescript
-const market = await commet.pricing.createMarketGroup({
+const market = await commet.markets.create({
   name: "South Asia",
   countryCodes: ["IN", "PK", "BD", "LK"],
 });
@@ -259,14 +259,13 @@ Omit `priceId` to use the default base price. A variant inherits its base price 
 
 ### commet.offers
 
-Introductory and Promotional Offers are first-class resources. One Introductory Offer can apply automatically to each plan price. Promotional Offers are selected explicitly.
+Offers are independent reusable phase sequences. They do not contain a purpose or plan-price associations. Introductory, direct Promotional, and Promo Code are selection channels.
 
 ```typescript
 const offer = await commet.offers.create({
   name: "Launch experiment B",
-  purpose: "promotional",
-  planPriceIds: [basePrice.id],
   phases: [
+    { type: "free_trial", durationDays: 14 },
     { type: "percentage", durationCycles: 3, percentage: 2500 },
   ],
   metadata: { experiment: "launch", variant: "B" },
@@ -279,7 +278,9 @@ await commet.subscriptions.create({
 });
 ```
 
-Commet applies a price's active automatic Introductory Offer when no override is supplied. Passing a Promotional `offerId` overrides it. Experiment assignment belongs to the caller.
+Attach a compatible Offer to one base price in the Dashboard for automatic introductory selection. Passing `offerId` applies an Offer directly and overrides the automatic Intro. Promo Codes can reference only an Offer with exactly one `percentage` or `amount_off` phase. Experiment assignment belongs to the caller.
+
+Accepted phases are stored in an immutable Offer Application. The v9 response exposes its target through `appliesTo`; current public subscription channels create `plan_price` applications.
 
 ### commet.webhooks
 

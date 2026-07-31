@@ -12,6 +12,7 @@ Distribution repo for Commet agent skills. Install with:
 - `skills/commet-webhooks/` — Webhook setup, event handling, signature verification
 - `skills/ai-billing/` — AI token billing, balance model, cost tracking with margins
 - `skills/migrate-commet-v7-to-v8/` — Repository-aware SDK v7 to v8 migration checklist
+- `skills/migrate-commet-v8-to-v9/` — Repository-aware independent Offers and Markets migration checklist
 
 ## Version policy
 
