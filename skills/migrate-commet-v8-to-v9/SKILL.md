@@ -31,7 +31,14 @@ Do not infer the channel from phase shape alone.
 
 ## 2. Upgrade versions
 
-- Upgrade every Commet SDK package to major v9.
+- Upgrade the language SDK used by the integration:
+  - Node: `@commet/node` v9.
+  - Python: `commet-sdk` v9.
+  - Go: change the module and imports to `github.com/commet-labs/commet-go/v9`.
+  - Java: `co.commet:commet-java:9.x`.
+  - PHP: `commet/commet-php` v9.
+- Upgrade the `commet` CLI to v5 when the project uses it.
+- Upgrade `@commet/next`, `@commet/ai-sdk`, and `@commet/better-auth` to releases compatible with `@commet/node` v9. Their package majors do not track the API version.
 - Pin raw API requests and webhooks to `2026-07-31`.
 - Regenerate generated clients before adding handwritten compatibility code.
 
