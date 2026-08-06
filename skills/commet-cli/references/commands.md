@@ -81,6 +81,28 @@ COMMET_API_KEY=ck_... commet push --yes   # CI pipeline
 
 **Blocked:** Feature type changes (e.g. `boolean` -> `usage`) must be done in the dashboard; `commet push` refuses them.
 
+The config contract is versioned and uses one base-price representation:
+
+```typescript
+import { defineConfig } from "@commet/node";
+
+export default defineConfig({
+  schemaVersion: 1,
+  features: {},
+  plans: {
+    pro: {
+      name: "Pro",
+      defaultInterval: "monthly",
+      prices: [{ interval: "monthly", amountInCents: 499 }],
+    },
+  },
+});
+```
+
+`amountInCents` is non-negative integer USD cents (`499` = `$4.99`). Config overage `unitPrice` is positive integer rate scale (`10_000` = `$1.00` per unit). Resource monetary flags use integer currency minor units except rate fields; percentage and margin values use integer basis points. Counts, credits, and trial days use safe whole numbers.
+
+For an older config with `amount`, run `commet pull --yes`. The old field is rejected and has no compatibility fallback. The CLI validates before the request, the server validates again, and the full catalog push is atomic. Any error exits non-zero; `--output agent` returns stable `code`, `path`, `expected`, and `received` fields.
+
 ## Development
 
 ### commet listen

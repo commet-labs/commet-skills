@@ -74,15 +74,17 @@ Generates `commet.config.ts` in the project root -- your features and plans as c
 import { defineConfig } from "@commet/node";
 
 export default defineConfig({
+  schemaVersion: 1,
   features: {
     api_calls: { name: "API Calls", type: "usage", unitName: "call" },
   },
   plans: {
     pro: {
       name: "Pro",
+      consumptionModel: "metered",
       defaultInterval: "monthly",
-      prices: [{ interval: "monthly", amount: 9900 }],
-      features: { api_calls: { included: 10000 } },
+      prices: [{ interval: "monthly", amountInCents: 499 }],
+      features: { api_calls: { included: 10_000 } },
     },
   },
 });
