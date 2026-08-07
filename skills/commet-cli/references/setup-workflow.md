@@ -7,7 +7,7 @@ The fastest way to start. Creates a project with billing fully configured.
 ### 1. Install the CLI
 
 ```bash
-npm install -g commet
+npm install -g commet@^6
 ```
 
 ### 2. Scaffold a project
@@ -42,8 +42,8 @@ Add Commet billing to an existing project.
 ### 1. Install the CLI and SDK
 
 ```bash
-npm install -g commet
-npm install @commet/node
+npm install -g commet@^6
+npm install @commet/node@^10
 ```
 
 ### 2. Authenticate

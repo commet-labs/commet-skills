@@ -11,7 +11,7 @@ metadata:
 
 # Commet CLI
 
-Billing infrastructure as code: sync features and plans between Commet and a local `commet.config.ts`, forward webhook events to your dev server, scaffold new projects from billing templates, and manage resources (customers, subscriptions, plans, ...) from the terminal. Requires Node.js 18+.
+Billing infrastructure as code: sync features and plans between Commet and a local `commet.config.ts`, forward webhook events to your dev server, scaffold new projects from billing templates, and manage resources (customers, subscriptions, plans, ...) from the terminal. Requires Node.js 18+. The versioned config contract below requires Commet CLI 6.0.0+ and `@commet/node` 10.0.0+.
 
 ## Install
 
@@ -54,18 +54,12 @@ export default defineConfig({
 });
 ```
 
-Money and quantity fields are intentionally explicit:
+Two config units are essential:
 
-| Value | Unit |
-| --- | --- |
-| `prices[].amountInCents` | Non-negative integer USD cents. `499` = `$4.99` |
-| `features.*.overage.unitPrice` | Positive integer rate scale. `10_000` = `$1.00` per unit |
-| Plan/addon/credit-pack/invoice/payment/payout amount flags | Integer currency minor units; read the flag description for its currency |
-| Included balance | Non-negative integer USD cents |
-| Offer percentage and AI margin | Integer basis points. `2_500` = `25%` |
-| Counts, credits, and trial days | Safe whole numbers |
+- `prices[].amountInCents` uses non-negative integer USD cents: `499` = `$4.99`.
+- `features.*.overage.unitPrice` uses positive integer rate scale: `10_000` = `$1.00` per unit.
 
-Configs generated before schema version 1 used the removed `amount` field. Run `commet pull --yes` to regenerate them. Do not add a compatibility field. The CLI validates the complete config before sending it, the server validates it again, and a push applies the full catalog in one transaction. Any error exits non-zero; `--output agent` includes a stable code, field path, expected form, and received value.
+For other numeric flags, validation behavior, and the safe schema-version-1 migration, read [references/commands.md](references/commands.md).
 
 ## Commands
 

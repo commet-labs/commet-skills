@@ -1,6 +1,6 @@
 # CLI Command Reference
 
-Run `commet` with no arguments for a status screen (auth, linked org, config file) and the full command list. Automation-friendly commands (`pull`, `push`, `orgs`, `link`, and every resource command) accept `--output agent` for structured JSON output without prompts -- and when piped with no arguments, `commet` prints its capabilities as JSON.
+Run `commet` with no arguments for a status screen (auth, linked org, config file) and the full command list. Automation-friendly commands (`pull`, `push`, `orgs`, `link`, and every resource command) accept `--output agent` for structured JSON output without prompts -- and when piped with no arguments, `commet` prints its capabilities as JSON. The config contract in this reference requires Commet CLI 6.0.0+ and `@commet/node` 10.0.0+.
 
 ## Authentication
 
@@ -101,7 +101,14 @@ export default defineConfig({
 
 `amountInCents` is non-negative integer USD cents (`499` = `$4.99`). Config overage `unitPrice` is positive integer rate scale (`10_000` = `$1.00` per unit). Resource monetary flags use integer currency minor units except rate fields; percentage and margin values use integer basis points. Counts, credits, and trial days use safe whole numbers.
 
-For an older config with `amount`, run `commet pull --yes`. The old field is rejected and has no compatibility fallback. The CLI validates before the request, the server validates again, and the full catalog push is atomic. Any error exits non-zero; `--output agent` returns stable `code`, `path`, `expected`, and `received` fields.
+To migrate an older config with `amount`:
+
+1. Commit or back up `commet.config.ts`.
+2. Add `schemaVersion: 1`.
+3. Replace each generated integer directly (`amount: 499` becomes `amountInCents: 499`). Convert hand-written decimal USD to exact cents (`amount: 4.99` becomes `amountInCents: 499`).
+4. Run `commet push --dry-run` and review the diff before applying it.
+
+Do not add a compatibility field. The CLI validates before the request, the server validates again, and one push applies all its feature and plan changes in one transaction. Omitted resources are not deleted. Every failure exits non-zero. Config validation and push-rejection responses in `--output agent` include stable `code`, `path`, `expected`, and `received` fields; network and authentication failures may include only `code` and `message`.
 
 ## Development
 
