@@ -16,7 +16,7 @@ Billing infrastructure as code: sync features and plans between Commet and a loc
 ## Install
 
 ```bash
-npm install -g commet
+npm install -g commet@^6
 ```
 
 ## Quick Start
