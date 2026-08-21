@@ -17,6 +17,8 @@ This skill contains verified behavior rules for the current Commet product. Load
 
 Do not derive behavior from a generic fairness slogan. Scheduling, billing, discounts, and resets are explicit per operation.
 
+For renewal timing, read [references/billing-and-dunning.md](references/billing-and-dunning.md) and verify the current discovery predicate before answering. Never infer when a subscription is due from a date-only dashboard value, legacy billing-day columns, or the cron schedule.
+
 ## References
 
 - [subscriptions-and-plan-changes.md](references/subscriptions-and-plan-changes.md) — lifecycle, access, intro eligibility, changes, cancellation, and reactivation.

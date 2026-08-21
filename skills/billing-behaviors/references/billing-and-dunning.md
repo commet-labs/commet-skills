@@ -2,6 +2,14 @@
 
 ## Billing cycle
 
+Recurring billing has two stages: a minute cron discovers passed deadlines and publishes queue messages, then the queue consumer executes the billing cycle. Discovery or enqueue success does not prove that the consumer ran, an invoice was created, or a provider charge was attempted.
+
+Discovery uses the persisted `currentPeriodEnd` and `entitlementPeriodEnd` deadlines for active recurring subscriptions. It excludes `one_time` subscriptions and does not use legacy `billing_dom`, `billingDayOfMonth`, or `billingDayOfWeek` fields to decide whether a subscription is due. The public `billingDayOfMonth` value is derived from `billingAnchor`; it is not scheduling authority.
+
+The cron frequency is polling cadence, not the subscription schedule. The exact due instant is the persisted deadline, advanced from `billingAnchor`; a deadline at `00:00 UTC` is valid data and can create a cohort without implying a global midnight scanner. Dashboard dates may omit the time, so inspect the exact stored timestamp before calling a renewal early or late.
+
+Repeated discovery runs use a stable queue idempotency identity for the same organization, customer, subscription, and due timestamp. When diagnosing a missing renewal, verify the chain in order: persisted deadline, discovery eligibility, enqueue message and idempotency key, first queue delivery, consumer outcome, invoice/transaction, and provider attempt.
+
 Commet applies due subscription events, resolves the billing period and current catalog price, calculates lines, persists the invoice, resets model-owned allocations when applicable, and records the period feature snapshot.
 
 Quarterly and yearly subscriptions still process monthly boundaries. The plan base is charged only on a billing month; applicable overage can be invoiced at intermediate monthly boundaries.
