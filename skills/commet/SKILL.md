@@ -1,127 +1,65 @@
 ---
 name: commet
-description: Integrate Commet billing and payments into any application. Use when working with @commet/node, @commet/next, @commet/better-auth, the Commet CLI, or building billing features like subscriptions, usage tracking, seat management, checkout, customer portal, webhooks, feature gating, or payment flows. Triggers on imports from "@commet/node", "@commet/next", "@commet/better-auth", commet SDK usage, billing integration tasks, or mentions of Commet.
-license: MIT
-metadata:
-  author: commet
-  version: "1.0.0"
-  homepage: https://commet.co
-  source: https://github.com/commet-labs/skills
+description: Integrate and maintain Commet billing with the installed Node, Python, Go, Java, or PHP SDK and the Next.js, AI SDK, Better Auth, or CLI integrations. Use for subscriptions, usage, seats, checkout, customer portal, webhooks, feature access, payments, migrations, errors, or any repository that imports a Commet package. Resolve the version-matched installed documentation before editing and use local doctor evidence when Node is present.
 ---
 
-# Commet Integration
+# Commet integration
 
-Commet is an all-in-one billing and payments platform. Merchant of Record handling taxes, compliance, refunds, and payouts. Integrate with a few lines of code.
+Treat the installed SDK as the contract. This skill sequences the work; it does not carry a copy of the API surface.
 
-## Packages
+## Resolve installed context
 
-| Package | Purpose | Install |
-|---------|---------|---------|
-| `@commet/node` | Core SDK - customers, subscriptions, usage, seats, features, portal, webhooks | `npm i @commet/node` |
-| `@commet/next` | Next.js helpers - webhook handler, customer portal, pricing markdown | `npm i @commet/next` |
-| `@commet/ai-sdk` | Vercel AI SDK middleware - automatic AI token usage billing | `npm i @commet/ai-sdk` |
-| `@commet/better-auth` | Better Auth plugin - auto customer sync, auth-scoped billing | `npm i @commet/better-auth` |
-| `commet` | CLI - login, link, config push/pull, webhook forwarding, scaffold projects from templates | `npm install -g commet` |
+Before changing an integration:
 
-## Quick Start
+1. Inspect dependency manifests and lockfiles for every Commet SDK, integration package, CLI, direct REST call, and explicit API or webhook version.
+2. Identify the package actually imported by the target application. If multiple versions are installed, do not assume the newest one is active.
+3. Resolve `docs/manifest.json` from that installed artifact, read the manifest entrypoint, and then read only the relevant generated reference and Platform documents named by the manifest.
+4. Read generated types from the same installed artifact when the task depends on an exact request, response, error, or webhook shape.
+5. If the installed artifact has no documentation, stop and report the exact package and version. Do not silently substitute current web documentation for an older installed contract.
 
-```typescript
-import { Commet } from "@commet/node";
+Use the package manager rather than a source checkout to locate the artifact:
 
-const commet = new Commet({
-  apiKey: process.env.COMMET_API_KEY!, // ck_xxx format
-});
+| Ecosystem | Installed documentation |
+| --- | --- |
+| Node | `node_modules/@commet/node/docs/` plus the installed integration package README |
+| Python | Resolve the installed `commet` module, then use its `docs/` directory |
+| Go | Read the Commet module path from `go.mod`, resolve it with `go list -m -f '{{.Dir}}'`, then use `docs/` |
+| Java | Resolve the `co.commet:commet-java` dependency and read `commet/docs/` from its JAR resources |
+| PHP | `vendor/commet/commet-php/docs/` |
+
+For a new integration with no SDK installed, install the requested language package first when the user asked for implementation. Then read the documentation from that installed package before writing integration code.
+
+## Use Node diagnostics
+
+When a Node Commet package or the `commet` CLI is present, run from the project root:
+
+```bash
+commet doctor --output agent
 ```
 
-One URL, one key: the organization behind the API key decides sandbox vs live. A sandbox organization's key only touches sandbox data; a live organization's key touches live data. There is no `environment` option.
+Parse the JSON even when the command exits non-zero. Use its `status`, `apiVersion`, check `code`, `evidence`, `impact`, and `action`; never inspect or print secret values. Resolve failed package, documentation, compatibility, API-version, or project-context checks before relying on the integration.
 
-## Integration Workflow
+Do not run `commet agents setup` merely because doctor reports stale rules. It writes to the repository and requires an explicit user request.
 
-1. **Setup**: `commet login` -> `commet link` -> `commet pull` (syncs your billing config into `commet.config.ts`)
-2. **Create customer**: On user signup, create Commet customer with `id` = your user ID
-3. **Create subscription**: Call `subscriptions.create()` -> redirect to `checkoutUrl`
-4. **Check state**: Query `subscriptions.getActive()` to check subscription status (preferred over webhooks)
-5. **Track usage**: `usage.track()` for metered features, `seats.add/remove/set()` for seats
-6. **Feature gating**: `featureAccess.get()` / `featureAccess.list()` for current state, `usage.check()` before prospective consumption
-7. **Customer portal**: `portal.getUrl()` -> redirect for self-service billing management
+## Implement
 
-## SDK Reference
+1. Trace the existing integration and preserve its language, framework, customer identity, API-version, and idempotency boundaries.
+2. Use only operations and fields present in the installed manifest, generated reference, and types.
+3. Prefer direct subscription and feature-access queries for authorization decisions. Use webhooks for asynchronous work, not as a replicated source of billing truth.
+4. Preserve caller-owned logical event identifiers and explicit idempotency keys where the installed documentation requires them.
+5. Handle the installed error contract and preserve the server request ID exactly for support correlation.
+6. Run the repository's formatter, typecheck or compile, tests, and a focused integration check proportional to the change.
 
-See [references/sdk.md](references/sdk.md) for the complete API surface of `@commet/node`.
+## Guard effects
 
-## Next.js Integration
+Repository inspection, code edits, builds, and local tests do not require remote organization context. Any action that creates, updates, deletes, pushes, migrates, forwards, or tests Commet resources does.
 
-See [references/nextjs.md](references/nextjs.md) for `@commet/next` webhook handlers, customer portal routes, and pricing markdown.
+Before a remote effect:
 
-## AI SDK Integration
+1. Name the exact organization and whether it is `sandbox` or `live`.
+2. In Node projects, require a passing `PROJECT_CONTEXT_VALID` doctor check and use its evidence.
+3. In other ecosystems, require the organization and mode from explicit project configuration or the user; never infer mode from an API-key prefix.
+4. State the target before executing. Do not perform a live write unless the user's request explicitly authorizes that effect.
+5. Prefer a documented dry run or sandbox verification when available. Do not invent flags or remote behavior that the installed documentation does not expose.
 
-See [references/ai-sdk.md](references/ai-sdk.md) for `@commet/ai-sdk` middleware that auto-tracks AI token usage for billing.
-
-## Better Auth Integration
-
-See [references/better-auth.md](references/better-auth.md) for the `@commet/better-auth` plugin that auto-syncs customers and provides auth-scoped billing endpoints.
-
-## Billing Concepts
-
-See [references/billing-concepts.md](references/billing-concepts.md) for plan structure, feature types, consumption models, and charging behavior.
-
-## Key Patterns
-
-### Query-first, webhooks optional
-
-Always query subscription/feature state directly with the SDK instead of relying on webhooks to sync state. The recommended pattern is to call `subscriptions.getActive()`, `featureAccess.get()`, or `featureAccess.list()` when you need to know a customer's status. Webhooks are useful for background tasks (sending emails, provisioning resources) but should never be the source of truth for access control.
-
-```typescript
-// Recommended: query state directly
-const sub = await commet.subscriptions.getActive({ customerId: "user_123" });
-if (sub?.status === "active") { /* grant access */ }
-
-// Recommended: feature gating
-const access = await commet.featureAccess.get({
-  code: "advanced_analytics",
-  customerId: "user_123",
-});
-if (!access.allowed) { /* show upgrade prompt */ }
-```
-
-### Customer identification
-
-Always use `customerId` (your user/org ID) to identify customers. The SDK accepts both your own IDs and Commet's `cus_xxx` IDs.
-
-### Idempotency
-
-All POST requests auto-generate idempotency keys. For critical operations, pass explicit keys:
-
-```typescript
-await commet.usage.track({
-  customerId: "user_123",
-  featureCode: "api_calls",
-  eventId: `usage_${requestId}`,
-}, {
-  idempotencyKey: `request_${requestId}`,
-});
-```
-
-### Error handling
-
-```typescript
-import { CommetAPIError, CommetValidationError } from "@commet/node";
-
-try {
-  await commet.subscriptions.create({ ... });
-} catch (error) {
-  if (error instanceof CommetValidationError) {
-    console.log(error.validationErrors); // { field: ["message"] }
-  }
-  if (error instanceof CommetAPIError) {
-    console.log(error.statusCode, error.code);
-  }
-}
-```
-
-### Environment variables
-
-```env
-COMMET_API_KEY=ck_xxx           # API key from dashboard - the key's organization decides sandbox vs live
-COMMET_WEBHOOK_SECRET=whsec_xxx # Optional - webhook secret for signature verification
-```
+Never expose API keys, webhook secrets, authorization tokens, or full environment values in output, patches, logs, or tests.

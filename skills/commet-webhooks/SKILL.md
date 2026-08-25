@@ -1,106 +1,39 @@
 ---
 name: commet-webhooks
-description: Use when setting up Commet webhook endpoints, verifying signatures, handling billing events (subscription.created, subscription.activated, subscription.canceled, subscription.updated, payment.received, payment.failed, invoice.created), or building event-driven billing workflows.
-license: MIT
-metadata:
-  author: commet
-  version: "1.0.0"
-  homepage: https://commet.co
-  source: https://github.com/commet-labs/skills
+description: Implement and diagnose Commet webhook endpoints in Node, Python, Go, Java, or PHP, including framework handlers, signature verification, event handling, retries, and idempotency. Use event names, payloads, headers, and helpers from the installed SDK documentation and types rather than a copied event catalog.
 ---
 
-# Commet Webhooks
+# Commet webhooks
 
-Receive real-time HTTP notifications when billing events happen in Commet -- subscriptions activating, payments failing, invoices being created, and more.
+Use the installed SDK as the webhook contract. This skill defines the handling workflow, not the current event inventory.
 
-## Quick Start
+## Resolve the contract
 
-```typescript
-// app/api/webhooks/commet/route.ts
-import { Webhooks } from "@commet/next";
+1. Detect the language, framework, installed Commet SDK, integration packages, and any explicit webhook API-version pin.
+2. Locate the installed SDK's `docs/manifest.json` using its package manager. Read the manifest entrypoint, generated webhook reference, and only the exact event entries needed for the task.
+3. Read the generated webhook types and the installed framework package README before choosing a handler helper or payload shape.
+4. In Node projects, run `commet doctor --output agent` and resolve failed documentation, compatibility, API-version, or project-context checks.
 
-export const POST = Webhooks({
-  webhookSecret: process.env.COMMET_WEBHOOK_SECRET!,
+Do not copy event unions, payload envelopes, headers, retry schedules, or callback names from this skill. If they are absent from the installed docs and types, report the missing contract instead of guessing.
 
-  onSubscriptionActivated: async (payload) => {
-    await sendWelcomeEmail(payload.data.externalId);
-  },
+## Implement the endpoint
 
-  onSubscriptionCanceled: async (payload) => {
-    await sendCancellationEmail(payload.data.externalId);
-  },
-});
-```
+1. Use the installed framework helper when one exists; otherwise follow the installed SDK's raw-body verification path.
+2. Verify the signature against the untouched request body before parsing or acting on the payload.
+3. Narrow on the exact generated event type and treat unknown events according to the installed documentation.
+4. Make business handling idempotent using the durable event identity exposed by the installed contract.
+5. Complete durable work before acknowledging when redelivery is required for failure recovery. Keep intentionally asynchronous work on a durable queue.
+6. Query Commet directly for access-control and current subscription decisions. Use webhooks for background consequences such as email, provisioning, analytics, or external synchronization.
+7. Preserve the endpoint's explicit webhook version until the user authorizes a version migration.
 
-Install the handler package:
+## Guard effects
 
-```bash
-npm install @commet/next
-```
+Editing and testing the local handler is local work. Registering an endpoint, sending a provider test event, replaying a delivery, or changing webhook configuration is a remote effect.
 
-## Key Gotcha: Query State Directly
+Before a remote effect, state the exact organization and `sandbox` or `live` mode. Use a passing `PROJECT_CONTEXT_VALID` doctor check in Node projects; otherwise require explicit project or user context. Do not send or replay live events without explicit authorization.
 
-Webhooks are for background tasks (sending emails, provisioning resources, logging). They should never be the source of truth for access control or subscription state.
+Never log webhook secrets, signatures, authorization headers, or complete payloads containing customer data.
 
-Always query the SDK directly when you need to check a customer's status:
+## Verify
 
-```typescript
-import { Commet } from "@commet/node";
-
-const commet = new Commet({ apiKey: process.env.COMMET_API_KEY! });
-
-// Check subscription status -- do this, not webhook state sync
-const sub = await commet.subscriptions.getActive({ customerId: "user_123" });
-if (sub?.status === "active" || sub?.status === "trialing") {
-  // grant access
-}
-
-// Check feature access
-const access = await commet.featureAccess.get({
-  code: "advanced_analytics",
-  customerId: "user_123",
-});
-if (access.allowed) { /* grant access */ }
-```
-
-## Event Types
-
-| Event | When Fired | Common Use |
-|-------|-----------|------------|
-| `subscription.created` | New subscription created, before payment | Logging, analytics |
-| `subscription.activated` | Payment successful, subscription active | Welcome email, provision resources |
-| `subscription.canceled` | Subscription canceled | Cancellation email, schedule cleanup |
-| `subscription.updated` | Subscription details changed | Sync external systems |
-| `subscription.plan_changed` | Plan upgrade/downgrade | Notify of plan change, adjust resources |
-| `payment.received` | Recurring payment processed | Receipt email, update accounting |
-| `payment.failed` | Recurring charge failed | Alert customer, dunning flow |
-| `invoice.created` | New invoice generated | Custom invoice handling |
-
-See [references/events.md](references/events.md) for full payload shapes and examples.
-
-## Payload Envelope
-
-Every webhook delivers a JSON payload with this structure:
-
-```json
-{
-  "event": "subscription.activated",
-  "timestamp": "2026-03-25T14:30:00.000Z",
-  "organizationId": "org_abc123",
-  "data": { }
-}
-```
-
-## Headers
-
-| Header | Description |
-|--------|-------------|
-| `X-Commet-Signature` | HMAC-SHA256 hex signature of the raw body |
-| `X-Commet-Event` | The event type |
-| `X-Commet-Timestamp` | ISO 8601 datetime when the event was emitted |
-
-## When to Load References
-
-- **Setting up webhooks or verifying signatures** -> [references/setup.md](references/setup.md)
-- **Event payload shapes and fields** -> [references/events.md](references/events.md)
-- **Next.js, Express, or Better Auth handlers** -> [references/framework-handlers.md](references/framework-handlers.md)
+Test the public handler boundary with the installed signing helper or a real sandbox delivery. Cover valid signatures, invalid signatures, the requested event, duplicate delivery, and the handler's acknowledgement behavior. Run the repository's formatter, compiler or typecheck, and relevant tests.

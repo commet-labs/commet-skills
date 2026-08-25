@@ -1,103 +1,41 @@
 ---
 name: commet-cli
-description: Use when working with the Commet CLI -- logging in, linking projects, syncing billing config as code (commet pull/push), forwarding webhooks locally (commet listen), scaffolding new projects from templates (fixed, seats, metered, credits, balance-ai, balance-fixed), or running resource commands from the terminal.
-license: MIT
-metadata:
-  author: commet
-  version: "1.0.0"
-  homepage: https://commet.co
-  source: https://github.com/commet-labs/skills
+description: Operate the installed Commet CLI for project setup, local diagnostics, agent rules, organization linking, configuration sync, webhook forwarding, scaffolding, and resource commands. Use the CLI's installed capabilities and version-matched documentation instead of a copied command inventory, and require explicit organization and sandbox or live context before effects.
 ---
 
 # Commet CLI
 
-Billing infrastructure as code: sync features and plans between Commet and a local `commet.config.ts`, forward webhook events to your dev server, scaffold new projects from billing templates, and manage resources (customers, subscriptions, plans, ...) from the terminal. Requires Node.js 18+.
+Use the installed CLI as the command contract. Do not rely on a command or flag list embedded in this skill.
 
-## Install
+## Inspect first
 
-```bash
-npm install -g commet
-```
+1. Resolve the executable the project actually uses and record its version.
+2. Run `commet --output agent` for the installed capability manifest and `commet <command> --help` for the exact command being considered.
+3. When `@commet/node` or another Node integration is installed, read `node_modules/@commet/node/docs/manifest.json`, its entrypoint, and the installed CLI documentation it indexes.
+4. Run `commet doctor --output agent` from the project root and address failed package, documentation, compatibility, API-version, or project-context checks before changing the integration.
 
-## Quick Start
+If the installed CLI does not expose a command or flag, do not substitute one from this skill, training data, or the latest website.
 
-```bash
-commet login          # Authenticate in browser
-commet link           # Link project to an organization
-commet pull           # Sync remote config -> commet.config.ts
-```
+## Choose the workflow
 
-After `commet pull`, your billing config lives in `commet.config.ts`. Edit it locally and run `commet push` to apply changes to Commet:
+- For local diagnosis, run doctor and report its structured evidence without printing secret values.
+- For agent instructions, use the installed `agents` capability. Setup mutates repository files, so run it only when the user explicitly asks.
+- For configuration sync, inspect the installed pull or push capability, preview the exact diff when supported, and preserve project-owned configuration.
+- For webhook forwarding, confirm the local destination, requested event scope, and process lifetime before starting it.
+- For scaffolding, confirm the destination directory and organization context before creating files or remote resources.
+- For resource operations, derive resources, actions, parameters, and output format from the installed capability manifest and help output.
 
-```typescript
-import { defineConfig } from "@commet/node";
+## Guard effects
 
-export default defineConfig({
-  features: {
-    api_calls: { name: "API Calls", type: "usage", unitName: "call" },
-  },
-  plans: {
-    pro: {
-      name: "Pro",
-      defaultInterval: "monthly",
-      prices: [{ interval: "monthly", amount: 9900 }],
-      features: { api_calls: { included: 10000 } },
-    },
-  },
-});
-```
+Before any command that links a project, writes files, pushes configuration, creates a project, forwards events, or mutates a resource:
 
-## Commands
+1. State whether the effect is local, remote, or both.
+2. Require the exact organization and `sandbox` or `live` mode. Use a passing `PROJECT_CONTEXT_VALID` doctor check when available.
+3. Show the documented preview or dry run when the installed command supports one.
+4. Do not perform a live write unless the user's request explicitly authorizes it.
 
-| Command | Description |
-|---------|-------------|
-| `commet create [name]` | Scaffold new project from a billing template |
-| `commet login` | Authenticate with Commet (opens browser) |
-| `commet logout` | Remove credentials |
-| `commet link` | Link project to an organization; re-run to switch |
-| `commet link --org <slug-or-id>` | Link or switch non-interactively |
-| `commet link --clear` | Unlink project |
-| `commet orgs` | List organizations you have access to |
-| `commet pull` | Sync remote config into `commet.config.ts` |
-| `commet push` | Push `commet.config.ts` changes to Commet |
-| `commet listen <url>` | Forward webhook events to a local server |
-| `commet <resource> <action>` | Resource commands mirroring the SDK (see below) |
+Authentication commands may open a browser or store credentials. Explain that effect before running them. Never print credentials or secret values, and never invent a non-interactive flag that the installed CLI does not advertise.
 
-Resource commands exist for: `customers`, `subscriptions`, `plans`, `features`, `feature-access`, `seats`, `usage`, `portal`, `addons`, `credit-packs`, `webhooks`, `api-keys`, `invoices`, `transactions`, `offers`, `promo-codes`, `markets`, `plan-groups`, `payments`, `payouts`, `test-clock`, `quota`.
+## Verify
 
-See [references/commands.md](references/commands.md) for full details.
-
-## Templates
-
-Scaffold a complete Next.js project with billing pre-configured:
-
-```bash
-commet create my-app
-```
-
-| Template | Billing Model |
-|----------|--------------|
-| `fixed` | Fixed subscriptions with boolean features |
-| `seats` | Per-seat billing for team collaboration |
-| `metered` | Usage-based with included amounts and overage |
-| `credits` | Credit-based consumption with packs and top-ups |
-| `balance-ai` | AI product with automatic token cost tracking |
-| `balance-fixed` | Prepaid balance with fixed unit prices |
-
-See [references/templates.md](references/templates.md) for details on each template.
-
-## Key Gotchas
-
-1. **`commet create` provisions sandbox organizations only.** Templates create plans and features in a sandbox organization -- the CLI only offers your sandbox orgs. No separate login is needed; pick the org (or pass `--org <slug>`).
-
-2. **One login, one base URL.** The CLI always talks to `https://commet.co`. Sandbox vs live is a property of the organization you link, not of the endpoint or your login: link a sandbox org to work with sandbox data, and `commet link --org <slug>` to switch.
-
-3. **Two kinds of auth.** Resource commands and `pull`/`push` call the API with an API key, resolved as: `COMMET_API_KEY` env var -> project key in `.commet/config.json` (auto-generated by `commet link`) -> error. Your `commet login` credentials drive the platform commands: `orgs`, `link`, `listen`, `create`.
-
-4. **Sync in both directions.** After dashboard changes, re-run `commet pull` to update `commet.config.ts`. After local edits to `commet.config.ts`, run `commet push`. Both show a diff and support `--dry-run`.
-
-## When to Load References
-
-- **Full command flags and details** -> [references/commands.md](references/commands.md)
-- **Template descriptions and billing models** -> [references/templates.md](references/templates.md)
-- **Step-by-step project setup** -> [references/setup-workflow.md](references/setup-workflow.md)
+After the requested operation, use structured output or a documented read command to verify the result. For repository writes, show the resulting diff and preserve unrelated user changes.
