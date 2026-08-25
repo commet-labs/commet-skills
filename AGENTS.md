@@ -19,3 +19,12 @@ Distribution repo for Commet agent skills. Install with:
 - `commet` documents only the current stable SDK and API contract.
 - A major-version boundary gets its own `migrate-commet-vN-to-vN+1` skill linked from that release's changelog.
 - Keep prior migration skills available for older integrations. Correct factual errors, but do not rewrite them into the next migration.
+
+## Sources of truth
+
+- Skills own workflows, safety boundaries, and behavioral knowledge that generated contracts cannot express.
+- Exact SDK methods, types, errors, webhooks, examples, CLI capabilities, package versions, and API versions come from the documentation and manifests installed with each SDK.
+- A skill must inspect the installed artifact before naming contract details. Node workflows also consume `commet doctor --output agent` when available.
+- Do not add copied API, event, payload, error, command, or package-version inventories to this repository.
+- Any workflow with remote effects must require the exact organization and `sandbox` or `live` mode before execution.
+- Run `node scripts/check-skills.mjs` after changing a skill or its references.

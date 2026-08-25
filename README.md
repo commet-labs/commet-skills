@@ -1,6 +1,6 @@
 # Commet Skills
 
-Agent Skills for the [Commet](https://commet.co) billing platform. Give your AI agent expert-level billing knowledge — subscriptions, usage tracking, pricing models, and payments.
+Agent Skills for the [Commet](https://commet.co) billing platform. They give an agent repeatable billing workflows while exact APIs, errors, webhooks, and CLI capabilities come from the Commet packages installed in the user's project.
 
 ## Install
 
@@ -12,11 +12,11 @@ npx skills add commet-labs/skills
 
 | Skill | Description |
 |-------|-------------|
-| `commet` | Core SDK integration — @commet/node, @commet/next, @commet/ai-sdk, @commet/better-auth |
-| `billing-behaviors` | Business logic rules — proration, plan changes, subscription lifecycle |
-| `commet-cli` | CLI commands — login, link, config push/pull, webhook forwarding, scaffold from templates |
-| `commet-webhooks` | Webhook setup — event handling, signature verification, framework handlers |
-| `ai-billing` | AI token billing — tracked() middleware, balance model, cost calculation |
+| `commet` | Version-matched SDK integration across Node, Python, Go, Java, and PHP |
+| `billing-behaviors` | Business behavior — proration, plan changes, subscription lifecycle |
+| `commet-cli` | CLI workflows — diagnostics, setup, sync, forwarding, and resources |
+| `commet-webhooks` | Webhook workflow — contract discovery, verification, idempotency, and handling |
+| `ai-billing` | AI usage billing — measurement, configuration, idempotency, and verification |
 | `migrate-commet-v7-to-v8` | Repository-aware migration from SDK v7 to the direct-response v8 contract |
 | `migrate-commet-v8-to-v9` | Repository-aware migration to independent Offers and top-level Markets |
 
@@ -30,6 +30,14 @@ npx skills add commet-labs/skills --skill migrate-commet-v8-to-v9
 ```
 
 `commet` follows the current stable contract. Versioned migration skills remain scoped to one major boundary and are linked from the matching API changelog.
+
+## Installed context
+
+Every Commet SDK ships documentation that matches its installed contract. The skills locate that documentation through the project's package manager and read its machine-readable manifest before changing an integration. Node projects also use the local, read-only `commet doctor --output agent` report.
+
+The skills intentionally do not copy current method, event, error, payload, or command inventories. Updating a Commet SDK updates its code, types, and documentation together without requiring a matching skill release.
+
+Remote effects require the exact organization and `sandbox` or `live` mode. Installing or loading a skill never contacts Commet or changes billing resources.
 
 ## Prerequisites
 

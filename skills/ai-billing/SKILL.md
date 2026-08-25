@@ -1,130 +1,38 @@
 ---
 name: ai-billing
-description: Use when billing for AI model token usage — setting up @commet/ai-sdk tracked() middleware, configuring balance consumption model plans with AI model pricing, tracking input/output/cache tokens, cost calculation with margins, or building AI products that need usage-based billing.
-license: MIT
-metadata:
-  author: commet
-  version: "1.0.0"
-  homepage: https://commet.co
-  source: https://github.com/commet-labs/skills
+description: Implement and diagnose billing for AI usage with Commet, including the installed @commet/ai-sdk integration or direct usage reporting from Node, Python, Go, Java, and PHP. Use the installed SDK documentation for middleware options, token fields, pricing, errors, and balance behavior instead of copied formulas or API inventories.
 ---
 
-# AI Billing
+# AI billing
 
-## Quick Start
+Treat AI billing as a measured billing workflow. Exact middleware options, token fields, pricing inputs, errors, and SDK calls come from the installed documentation and generated types.
 
-Wrap any Vercel AI SDK model with `tracked()` to automatically bill for token usage:
+## Resolve installed context
 
-```typescript
-import { Commet } from "@commet/node";
-import { tracked } from "@commet/ai-sdk";
-import { anthropic } from "@ai-sdk/anthropic";
-import { generateText } from "ai";
+1. Detect the installed Commet SDK, AI provider or gateway, model wrapper, and the code path that receives authoritative usage totals.
+2. Locate the SDK's installed `docs/manifest.json`, read its entrypoint, and follow the indexed AI token billing, usage, balance, and error documentation.
+3. For `@commet/ai-sdk`, also read its installed README and peer dependency versions.
+4. In Node projects, run `commet doctor --output agent` and resolve failed package, documentation, compatibility, API-version, or project-context checks.
 
-const commet = new Commet({ apiKey: process.env.COMMET_API_KEY! });
+Do not use token field names, cost formulas, model identifiers, middleware options, or error codes from this skill. They change with the installed contract and provider integration.
 
-const result = await generateText({
-  model: tracked(anthropic("claude-sonnet-4-20250514"), {
-    commet,
-    feature: "ai_generation",
-    customerId: "user_123",
-  }),
-  prompt: "Explain quantum computing",
-});
-// Tokens tracked, cost calculated, balance deducted. Done.
-```
+## Implement
 
-That's it. `tracked()` intercepts the model response, reports `inputTokens`, `outputTokens`, `cacheReadTokens`, and `cacheWriteTokens` to Commet, which calculates cost from the AI model catalog and deducts from the customer's balance.
+1. Confirm which customer and billable feature own the usage.
+2. Confirm the product's configured consumption model and price source before writing tracking code. Do not silently convert between metered, credits, or balance behavior.
+3. Record usage only from the provider's final authoritative usage result. Preserve streaming behavior and the original model response.
+4. Use a caller-owned logical event identity and the installed contract's idempotency mechanism so retries cannot double charge.
+5. Define the expected application behavior when tracking fails. Do not silently claim billing succeeded when reporting failed.
+6. Keep pricing and margin policy in Commet configuration when the installed product documentation assigns ownership there; do not duplicate it in application code.
 
-## How It Works
+## Guard effects
 
-```
-Your app                    Commet                         AI Provider
-   |                          |                                |
-   |-- tracked(model) ------->|                                |
-   |                          |                                |
-   |-- generateText() --------|-------- API call ------------->|
-   |                          |                                |
-   |<-- tokens + response ----|<------- response --------------|
-   |                          |                                |
-   |                          |-- resolve model price          |
-   |                          |-- apply margin                 |
-   |                          |-- deduct from balance          |
-   |                          |-- record ledger entry          |
-   |                          |                                |
-   |<-- result (unchanged) ---|                                |
-```
+Code edits and local provider mocks are local. Creating or changing plans, features, prices, model mappings, balances, subscriptions, or usage events is a remote billing effect.
 
-## Balance Model Overview
+Before a remote effect, name the exact organization and `sandbox` or `live` mode. Use a passing `PROJECT_CONTEXT_VALID` doctor check in Node projects; otherwise require explicit project or user context. Verify billing changes in sandbox unless the user explicitly authorizes the named live effect.
 
-AI billing uses the **balance** consumption model. Customers get a dollar balance (e.g., $10.00/month) that depletes as they use AI features. When the balance reaches zero, behavior depends on configuration:
+Never print API keys, provider keys, prompts, completions, or full customer payloads while diagnosing token billing.
 
-- `blockOnExhaustion = true`: API returns 402, customer must top up or wait for renewal
-- `blockOnExhaustion = false`: Usage continues, overage charged at period end
+## Verify
 
-Balance resets to `includedBalance` at each billing period renewal.
-
-## Cost Formula
-
-All values use **rate scale** (10000 = $1.00) for sub-cent precision:
-
-```
-inputCost    = ceil(inputTokens    x inputPricePerMillionTokens    / 1,000,000)
-outputCost   = ceil(outputTokens   x outputPricePerMillionTokens   / 1,000,000)
-subtotal     = inputCost + outputCost + cacheReadCost + cacheWriteCost
-marginAmount = ceil(subtotal x margin / 10000)
-total        = subtotal + marginAmount
-```
-
-Margin is configured per feature per plan in basis points (2000 = 20% markup). All costs use `Math.ceil()` to prevent underbilling.
-
-## Key Gotchas
-
-| # | Gotcha | Detail |
-|---|--------|--------|
-| 1 | **Feature must be `pricingMode: "ai_model"`** | Configure this in the Commet dashboard before tracking works |
-| 2 | **Model must exist in the catalog** | Commet syncs models from AI Gateway automatically, but verify your model is listed |
-| 3 | **Tracking is non-blocking** | If token reporting fails, the AI response still returns. Use `onTrackingError` to catch failures |
-| 4 | **Balance deduction is real-time** | Cost is deducted immediately, not at period end |
-| 5 | **Rate scale, not cents** | Token prices and costs use rate scale (10000 = $1.00), not settlement scale (100 = $1.00) |
-| 6 | **Margin is per feature per plan** | Different plans can have different markups on the same AI feature |
-
-## What Do You Need?
-
-| Task | Reference |
-|------|-----------|
-| **Set up tracked() middleware** | [tracked-middleware.md](references/tracked-middleware.md) -- installation, streaming, multiple models, error handling |
-| **Understand cost calculation** | [cost-calculation.md](references/cost-calculation.md) -- AI model catalog, pricing, margins, multi-currency |
-| **Configure balance model** | [balance-model.md](references/balance-model.md) -- how balance works, exhaustion, top-ups, choosing the right model |
-
-## Prerequisites
-
-1. Feature configured with `pricingMode: "ai_model"` in the Commet dashboard
-2. Plan using the **balance** consumption model
-3. Margin configured on the plan feature (0 basis points = pass-through cost)
-4. Customer with an active subscription to that plan
-
-## Common Setup
-
-### API Key
-
-Store in environment variable:
-
-```bash
-export COMMET_API_KEY=ck_xxxxxxxxx
-```
-
-### Install
-
-```bash
-npm install @commet/node @commet/ai-sdk
-```
-
-## Error Handling Quick Reference
-
-| Code | Condition | Action |
-|------|-----------|--------|
-| 402 | Insufficient balance | Customer needs to top up or upgrade plan |
-| 403 | Feature not in plan | Check customer's subscription includes the AI feature |
-| 404 | Model not in catalog | Verify the model ID matches the catalog (e.g., `claude-sonnet-4-20250514`) |
-| 422 | Missing required fields | `inputTokens` is required when `model` is provided |
+Run the application's formatter, compiler or typecheck, and tests. Exercise successful usage reporting, retry with the same logical event identity, the chosen tracking-failure behavior, and the configured exhaustion behavior against sandbox when remote verification is authorized.
