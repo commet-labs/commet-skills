@@ -1,6 +1,6 @@
 ---
 name: commet
-description: Integrate and maintain Commet billing with the installed Node, Python, Go, Java, or PHP SDK and the Next.js, AI SDK, Better Auth, or CLI integrations. Use for subscriptions, usage, seats, checkout, customer portal, webhooks, feature access, payments, migrations, errors, or any repository that imports a Commet package. Resolve the version-matched installed documentation before editing and use local doctor evidence when Node is present.
+description: Integrate and maintain Commet billing with the installed Node, Python, Go, Java, or PHP SDK and the Next.js, AI SDK, Better Auth, or CLI integrations. Use for subscriptions, usage, seats, checkout, customer portal, webhooks, feature access, payments, migrations, errors, or any repository that imports a Commet package. Resolve the version-matched installed documentation before editing and use doctor evidence when the local Commet CLI is available.
 ---
 
 # Commet integration

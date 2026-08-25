@@ -1,6 +1,6 @@
 ---
 name: commet-cli
-description: Operate the installed Commet CLI for project setup, local diagnostics, agent rules, organization linking, configuration sync, webhook forwarding, scaffolding, and resource commands. Use the CLI's installed capabilities and version-matched documentation instead of a copied command inventory, and require explicit organization and sandbox or live context before effects.
+description: Operate the installed Commet CLI for project setup, local diagnostics, agent rules, organization linking, configuration sync, webhook forwarding, scaffolding, and resource commands. Use the CLI's installed capabilities and version-matched documentation instead of a copied command inventory, and require explicit organization and sandbox or live context before remote effects.
 ---
 
 # Commet CLI
