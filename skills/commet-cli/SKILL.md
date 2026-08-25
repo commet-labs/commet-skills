@@ -27,9 +27,11 @@ If the installed CLI does not expose a command or flag, do not substitute one fr
 
 ## Guard effects
 
-Before any command that links a project, writes files, pushes configuration, creates a project, forwards events, or mutates a resource:
+Before a command that writes local files, state the exact target and require the user's request to authorize that local mutation.
 
-1. State whether the effect is local, remote, or both.
+Before a command that links a project, pushes configuration, creates or mutates a remote resource, or forwards remote events:
+
+1. State whether the effect is remote or both local and remote.
 2. Require the exact organization and `sandbox` or `live` mode. Use a passing `PROJECT_CONTEXT_VALID` doctor check when available.
 3. Show the documented preview or dry run when the installed command supports one.
 4. Do not perform a live write unless the user's request explicitly authorizes it.

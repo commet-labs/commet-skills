@@ -31,13 +31,15 @@ For a new integration with no SDK installed, install the requested language pack
 
 ## Use Node diagnostics
 
-When a Node Commet package or the `commet` CLI is present, run from the project root:
+When the `commet` CLI executable is present, run from the project root:
 
 ```bash
 commet doctor --output agent
 ```
 
 Parse the JSON even when the command exits non-zero. Use its `status`, `apiVersion`, check `code`, `evidence`, `impact`, and `action`; never inspect or print secret values. Resolve failed package, documentation, compatibility, API-version, or project-context checks before relying on the integration.
+
+If a Node package is installed but the CLI is not, report that doctor evidence is unavailable and continue with the installed package documentation. Do not install or execute a package implicitly. When the user asks to add the CLI, resolve its compatible installation from the installed documentation first.
 
 Do not run `commet agents setup` merely because doctor reports stale rules. It writes to the repository and requires an explicit user request.
 
@@ -57,8 +59,8 @@ Repository inspection, code edits, builds, and local tests do not require remote
 Before a remote effect:
 
 1. Name the exact organization and whether it is `sandbox` or `live`.
-2. In Node projects, require a passing `PROJECT_CONTEXT_VALID` doctor check and use its evidence.
-3. In other ecosystems, require the organization and mode from explicit project configuration or the user; never infer mode from an API-key prefix.
+2. In Node projects where doctor is available, require a passing `PROJECT_CONTEXT_VALID` check and use its evidence.
+3. Otherwise, require the organization and mode from explicit project configuration or the user; never infer mode from an API-key prefix.
 4. State the target before executing. Do not perform a live write unless the user's request explicitly authorizes that effect.
 5. Prefer a documented dry run or sandbox verification when available. Do not invent flags or remote behavior that the installed documentation does not expose.
 
